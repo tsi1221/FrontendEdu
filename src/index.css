@@ -1,53 +1,33 @@
 @import "tailwindcss";
 
+/* ===== THEME ===== */
 @theme {
   --color-brand-primary: #0056D2;
 }
 
-/* ===== ULTRA THIN BLACK SCROLLBAR ===== 
+/* ===== ULTRA THIN BLACK SCROLLBAR ===== */
 
-Chrome, Edge, Safari
-/* ::-webkit-scrollbar {
-  width: 2px;   /* ultra thin vertical scrollbar */
-  height: 2px;  /* ultra thin horizontal scrollbar */
+/* Chrome, Edge, Safari */
+::-webkit-scrollbar {
+  width: 2px;
+  height: 2px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent; 
-  display: none;/* clean minimal track */
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #00000085; /* semi-transparent black */
+  background: #00000085;
   border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #000; /* solid black on hover */
+  background: #000;
 }
 
-/* Firefox 
+/* Firefox */
 * {
   scrollbar-width: thin;
   scrollbar-color: #00000085 transparent;
-} */
-
-/*
-Source - https://stackoverflow.com/q/23200639
-Posted by user3260950, modified by community. See post 'Timeline' for change history
-Retrieved 2026-04-24, License - CC BY-SA 4.0
-*/
-
-::-webkit-scrollbar-track {
-    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-    background-color: transparent;
-}
-
-::-webkit-scrollbar {
-    width: 6px;
-    background-color: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-    background-color: #000000;
 }
