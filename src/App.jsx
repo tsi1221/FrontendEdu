@@ -12,6 +12,7 @@ import TextBook from './pages/student/textbook'
 import Settings from './pages/setting'
 import Chat from './pages/student/chat'
 import Dashbored from "./pages/student/dashbored"
+import ProfilePage from './pages/profile'
 
 function App() {
   return (
@@ -73,6 +74,14 @@ function App() {
           element={
             <SidebarLayout>
               <Settings />
+            </SidebarLayout>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <SidebarLayout>
+              <ProfilePage />
             </SidebarLayout>
           }
         />

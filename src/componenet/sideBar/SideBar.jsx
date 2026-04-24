@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { LayoutDashboard, Settings, Menu, MessageSquare,FlaskConical, BrainCircuit,Book } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const SidebarLayout = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
+
+  const  navigate = useNavigate();
 
   const navItems = [
     { icon: <LayoutDashboard size={20} />, label: 'Dashboard', path: '/dashbored' },
@@ -13,6 +15,11 @@ const SidebarLayout = ({ children }) => {
     { icon: <Book size={20} />, label: 'Textbook', path: '/text-book' },
     { icon: <Settings size={20} />, label: 'Settings', path: '/settings' },
   ];
+
+  const handleNavigation = (path) => () => {
+    setIsOpen(false);
+    navigate(path); // Uncomment when using useNavigate from react-router-dom
+  }
 
   return (
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden">
@@ -52,7 +59,7 @@ const SidebarLayout = ({ children }) => {
             ))}
           </nav>
 
-          <div className="mt-auto p-2 bg-slate-200/40 rounded-xl">
+          <div className="mt-auto p-2 bg-slate-200/40 rounded-xl" onClick={handleNavigation("/profile")}>
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-slate-300" />
               <div className="flex flex-col overflow-hidden">
@@ -76,7 +83,7 @@ const SidebarLayout = ({ children }) => {
 
         {/* The "Inset" Wrapper */}
         <div className="flex-1 lg:p-2 lg:pl-0">
-          <div className="h-full w-full bg-white rounded-lg lg:rounded border border-slate-200 shadow-sm overflow-y-auto">
+          <div className="h-full w-full bg-white rounded-lg lg:rounded border border-slate-200 shadow-sm overflow-y-auto p-4">
             {children}
           </div>
         </div>
