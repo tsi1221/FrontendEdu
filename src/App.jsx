@@ -5,7 +5,7 @@ import SignupPage from './pages/signinPage'
 
 import SidebarLayout from './componenet/sideBar/SideBar'
 import MainLayout from './Homepage/MainLayout'
-
+import Dashbored from './pages/student/dashbored'
 import Lab from './pages/student/lab'
 import PracticeHub from './pages/student/practiceHub'
 import TextBook from './pages/student/textbook'
@@ -27,6 +27,14 @@ function App() {
           element={
             <SidebarLayout>
               <Chat />
+            </SidebarLayout>
+          }
+        />
+        <Route
+          path="/dashbored"
+          element={
+            <SidebarLayout>
+              <Dashbored/>
             </SidebarLayout>
           }
         />
