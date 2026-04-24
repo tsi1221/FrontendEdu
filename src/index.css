@@ -4,33 +4,29 @@
   --color-brand-primary: #0056D2;
 }
 
-/* .dark {
-  color-scheme: dark;
-} */
- /* ===== SCROLLBAR (GLOBAL) ===== */
+/* ===== MINIMAL BLACK SCROLLBAR ===== */
 
 /* Chrome, Edge, Safari */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 4px;   /* thinner */
+  height: 4px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f5f9; /* light gray */
+  background: transparent; /* ultra clean */
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #2563eb, #4f46e5);
-  border-radius: 10px;
-  border: 2px solid #f1f5f9;
+  background: #000; /* black */
+  border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #1d4ed8, #4338ca);
+  background: #333; /* slight hover */
 }
 
 /* Firefox */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #4f46e5 #f1f5f9;
+  scrollbar-color: #000 transparent;
 }
