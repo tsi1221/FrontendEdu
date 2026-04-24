@@ -2,6 +2,7 @@ import React, { Suspense, useState, useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 
 import { LanguageProvider } from "../context/LanguageContext";
+import { Navbar } from "../componenet/sections/Navbar"; // ← Add this import
 
 import { Hero } from "../componenet/sections/Hero";
 import { Stats } from "../componenet/sections/Stats";
@@ -36,11 +37,13 @@ const MainLayoutContent = () => {
 
   return (
     <div className="relative min-h-screen">
-      
       {/* Background */}
       <Suspense fallback={<div />}>
         <ThreeBackground />
       </Suspense>
+
+      {/* Navbar - shows on all pages */}
+      <Navbar />
 
       {/* HOME PAGE */}
       {isHome ? (
@@ -54,7 +57,6 @@ const MainLayoutContent = () => {
           <Footer />
         </>
       ) : (
-        /* 🔥 THIS IS THE IMPORTANT PART */
         <Outlet />
       )}
     </div>

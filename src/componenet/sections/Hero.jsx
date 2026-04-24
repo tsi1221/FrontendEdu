@@ -27,7 +27,8 @@ const Hero = memo(() => {
       return ["EduTwin AI", "Viizhulaayizeeshinii 3D", "Barsiisaa Dhuunfaa"];
     }
 
-    return ["EduTwin AI", "3D ምስላዊ", "ግላዊ ሞግዚት"];
+    // Default to English if language not supported
+    return ["EduTwin AI", "3D Visuals", "Personalized Tutor"];
   }, [language]);
 
   const handleGetStarted = () => {
@@ -59,10 +60,10 @@ const Hero = memo(() => {
         {/* Luxury spotlight fade */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.08),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.04),transparent_30%)]" />
 
-        {/* Blue premium glows */}
-        <div className="absolute -left-16 top-10 h-80 w-80 rounded-full bg-[#193CB8]/20 blur-[140px] animate-pulse" />
-        <div className="absolute -right-20 bottom-10 h-104 w-104 rounded-full bg-indigo-500/20 blur-[160px] animate-pulse" />
-        <div className="absolute left-[35%] top-[25%] h-72 w-72 rounded-full bg-cyan-400/10 blur-[140px]" />
+        {/* Primary Blue premium glows - Updated to #0056D2 */}
+        <div className="absolute -left-16 top-10 h-80 w-80 rounded-full bg-[#0056D2]/20 blur-[140px] animate-pulse" />
+        <div className="absolute -right-20 bottom-10 h-104 w-104 rounded-full bg-[#0056D2]/15 blur-[160px] animate-pulse" />
+        <div className="absolute left-[35%] top-[25%] h-72 w-72 rounded-full bg-[#0056D2]/10 blur-[140px]" />
 
         {/* Glass noise grid */}
         <div
@@ -87,18 +88,18 @@ const Hero = memo(() => {
             transition={{ duration: 0.7 }}
             className="mb-4 inline-flex rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium text-white/90 backdrop-blur-xl"
           >
-           
+            {/* Badge content can be added here if needed */}
           </motion.div>
 
           <motion.h1
             initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.1 }}
-            className="text-4xl font-bold leading-tight text-white md:text-5xl lg:text-6xl"
+            className="text-4xl font-bold leading-tight text-black md:text-5xl lg:text-6xl"
           >
             {t("learnSmarter")}
             <br className="hidden sm:block" />
-            <span className="bg-linear-to-r from-blue-300 via-white to-cyan-300 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-[#0056D2] via-[#4a8eff] to-[#0056D2] bg-clip-text text-transparent">
               <AnimatedText texts={animatedTexts} />
             </span>
           </motion.h1>
@@ -107,7 +108,7 @@ const Hero = memo(() => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="mx-auto mt-5 max-w-xl text-base leading-7 bg-linear-to-r from-blue-700 to-cyan-300 bg-clip-text text-transparent md:text-lg lg:mx-0"
+            className="mx-auto mt-5 max-w-xl text-base leading-7 text-blue-400 md:text-lg lg:mx-0"
           >
             {t("heroDescription")}
           </motion.p>
@@ -154,8 +155,8 @@ const Hero = memo(() => {
             {/* Dark image overlay */}
             <div className="absolute inset-0 bg-linear-to-t from-black/35 via-transparent to-black/10" />
 
-            {/* Glow border */}
-            <div className="pointer-events-none absolute inset-0 rounded-3xl ring-1 ring-white/15" />
+            {/* Glow border - Updated to primary blue */}
+            <div className="pointer-events-none absolute inset-0 rounded-3xl ring-1 ring-[#0056D2]/30" />
           </div>
         </motion.div>
       </div>
