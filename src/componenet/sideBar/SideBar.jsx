@@ -28,7 +28,7 @@ const SidebarLayout = ({ children, userRole }) => {
     { icon: <MessageSquare size={20} />, label: 'Chat', path: '/chat', roles: ['student', 'admin'] },
     { icon: <FlaskConical size={20} />, label: 'Virtual Labs', path: '/lab', roles: ['student', 'admin'] },
     { icon: <BrainCircuit size={20} />, label: 'Practice Hub', path: '/practicehub', roles: ['student', 'admin'] },
-    { icon: <Book size={20} />, label: 'Textbook', path: '/text-book', roles: ['student', 'admin'] },
+    { icon: <Book size={20} />, label: 'Textbook', path: '/text-books', roles: ['student', 'admin'] },
     { icon: <FileQuestion size={20} />, label: 'Quiz Generate', path: '/quiz-generate', roles: ['teacher', 'admin'] },
     { icon: <Settings size={20} />, label: 'Settings', path: '/settings', roles: ['student', 'teacher', 'admin'] },
   ];
