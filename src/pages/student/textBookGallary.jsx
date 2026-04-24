@@ -1,24 +1,21 @@
-import React, { useState } from 'react';
+import  { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
     BookOpen, 
-    Star, 
-    ArrowRight, 
     Library, 
     User, 
     Search,
-    ChevronDown,
+    
     ArrowUpRight
 } from 'lucide-react';
 import sampleContents from "./sampleContents.json";
 
 const TextbookGallery = () => {
     const navigate = useNavigate();
-    const [searchQuery, setSearchQuery] = useState('');
-    const [filterSubject, setFilterSubject] = useState('All');
+    const [searchQuery] = useState('');
+    const [filterSubject] = useState('All');
 
     const textbooks = sampleContents;
-    const subjects = ['Physics', 'Computer Science', 'Economics', 'Biology', 'Music'];
 
     const filteredBooks = textbooks.filter(book => {
         const matchesSearch = book.title.toLowerCase().includes(searchQuery.toLowerCase());
@@ -94,10 +91,7 @@ const TextbookGallery = () => {
 
                                 {/* Bottom Action Bar on Hover */}
                                 <div className="mt-4 pt-3 border-t border-white/20 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                    <div className="flex items-center gap-1 text-amber-400">
-                                        <Star size={12} fill="currentColor" />
-                                        <span className="text-[10px] font-bold text-white">4.9 / 5.0</span>
-                                    </div>
+  
                                     <div className="flex items-center gap-1 text-white text-[10px] font-bold uppercase">
                                         Open Book <ArrowUpRight size={14} />
                                     </div>

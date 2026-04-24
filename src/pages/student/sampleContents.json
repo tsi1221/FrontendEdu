@@ -1,22 +1,30 @@
 [
   {
     "_id": "1",
-    "title": "The Fundamentals of Modern Physics",
-    "cover_image": "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=1000"
+    "title": "Grade 9 Biology",
+    "subject": "Biology",
+    "grade": 9,
+    "cover_image": "https://images.unsplash.com/photo-1530210124550-912dc1381cb8?q=80&w=1000"
   },
   {
     "_id": "2",
-    "title": "Advanced Web Architectures with React",
-    "cover_image": "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1000"
+    "title": "Grade 9 Chemistry",
+    "subject": "Chemistry",
+    "grade": 9,
+    "cover_image": "https://images.unsplash.com/photo-1603126857599-f6e157fa2fe6?q=80&w=1000"
   },
   {
     "_id": "3",
-    "title": "An Introduction to Macroeconomics",
-    "cover_image": "https://images.unsplash.com/photo-1611974715855-9c8c14b3da53?q=80&w=1000"
+    "title": "Grade 9 Physics",
+    "subject": "Physics",
+    "grade": 9,
+    "cover_image": "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=1000"
   },
   {
     "_id": "4",
-    "title": "Human Biology and Anatomy",
-    "cover_image": "https://images.unsplash.com/photo-1530210124550-912dc1381cb8?q=80&w=1000"
+    "title": "Grade 9 Mathematics",
+    "subject": "Mathematics",
+    "grade": 9,
+    "cover_image": "https://images.unsplash.com/photo-1529070538774-1843cb3265df?q=80&w=1000"
   }
 ]
