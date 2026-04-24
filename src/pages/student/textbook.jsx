@@ -57,7 +57,7 @@ const Textbook = () => {
   };
 
   return (
-    <div className="flex h-screen w-full bg-slate-100 p-3 gap-3 overflow-hidden">
+    <div className="flex h-screen w-full bg-slate-100 gap-3 overflow-hidden">
       
       {/* LEFT SIDE: Textbook Reader */}
       <div 
@@ -110,7 +110,7 @@ const Textbook = () => {
       </div>
 
       {/* RIGHT SIDE: AI Chat */}
-      <div className="w-[420px] flex flex-col bg-white rounded-[2.5rem] border border-slate-200 shadow-sm overflow-hidden">
+      <div className="w-105 flex flex-col bg-white rounded-[2.5rem] border border-slate-200 shadow-sm overflow-hidden">
         <div className="p-6 border-b border-slate-50 flex items-center gap-3">
           <div className="w-10 h-10 bg-indigo-600 rounded-2xl flex items-center justify-center">
             <Sparkles size={20} className="text-white" />
