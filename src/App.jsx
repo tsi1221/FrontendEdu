@@ -1,20 +1,31 @@
-import { useState } from 'react'
+import { Route, Routes } from 'react-router-dom'
+import LoginPage from './pages/loginPage'
+import SignupPage from './pages/signinPage'
+import SidebarLayout from './componenet/sideBar/SideBar'
+import Lab from './pages/student/lab'
+import PracticeHub from './pages/student/practiceHub'
+import TextBook from './pages/student/textbook'
+import Settings from './pages/setting'
+import Chat from './pages/student/chat'
 
 function App() {
-  const [count, setCount] = useState(0)
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
-      <h1 className="text-6xl font-bold text-white mb-8">
-        Hello! 👋
-      </h1>
-      
-      <button
-        onClick={() => setCount(count + 1)}
-        className="px-6 py-3 bg-white text-purple-600 rounded-lg font-semibold hover:bg-gray-100 transition-all transform hover:scale-105 shadow-lg"
-      >
-        Clicked {count} times
-      </button>
+    <div className="w-full h-screen ">
+      <Routes>
+        <Route path="/" element={<SidebarLayout><h1 className="text-3xl font-bold">Home Page</h1></SidebarLayout>} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+
+
+        <Route path="/chat" element={<SidebarLayout><Chat /></SidebarLayout>} />
+        <Route path="/lab" element={<SidebarLayout><Lab /></SidebarLayout>} />
+        <Route path="/practice-hub" element={<SidebarLayout><PracticeHub /></SidebarLayout>} />
+        <Route path="/text-book" element={<SidebarLayout><TextBook /></SidebarLayout>} />
+        <Route path="/settings" element={<SidebarLayout><Settings /></SidebarLayout>} />
+
+
+      </Routes>
     </div>
   )
 }
