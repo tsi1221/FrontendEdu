@@ -4,29 +4,29 @@
   --color-brand-primary: #0056D2;
 }
 
-/* ===== MINIMAL BLACK SCROLLBAR ===== */
+/* ===== ULTRA THIN BLACK SCROLLBAR ===== */
 
 /* Chrome, Edge, Safari */
 ::-webkit-scrollbar {
-  width: 4px;   /* thinner */
-  height: 4px;
+  width: 2px;   /* ultra thin vertical scrollbar */
+  height: 2px;  /* ultra thin horizontal scrollbar */
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent; /* ultra clean */
+  background: transparent; /* clean minimal track */
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #000; /* black */
+  background: #00000085; /* semi-transparent black */
   border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #333; /* slight hover */
+  background: #000; /* solid black on hover */
 }
 
 /* Firefox */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #000 transparent;
+  scrollbar-color: #00000085 transparent;
 }
