@@ -69,7 +69,7 @@ const Chat = () => {
   ];
 
   return (
-    <div className="flex h-full w-full bg-slate-50 ml-6 text-slate-900 overflow-hidden">
+    <div className="flex h-full w-full bg-slate-50  text-slate-900 overflow-hidden">
       {/* Mobile overlay when sidebar is open on small screens */}
       {sidebarOpen && (
         <div 
@@ -102,7 +102,7 @@ const Chat = () => {
 
         {/* Inset chat window */}
         <div className="flex-1 overflow-hidden p-0 md:p-4 lg:p-6">
-          <div className="h-full w-full bg-white md:rounded-lg border-0 md:border border-slate-200 md:shadow-sm flex flex-col overflow-hidden">
+          <div className="h-full w-full bg-white md:rounded-xs border-0 md:border border-slate-200 md:shadow-sm flex flex-col overflow-hidden">
             
             {/* Messages area */}
             <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 md:space-y-8">
@@ -145,7 +145,7 @@ const Chat = () => {
                   onChange={(e) => setInputMessage(e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder="Message Nexus..."
-                  className="w-full pl-12 md:pl-14 pr-12 md:pr-14 py-3 md:py-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-[#0056D2]/20 focus:border-[#0056D2] transition-all resize-none text-sm md:text-base"
+                  className="w-full pl-12 md:pl-14 pr-12 md:pr-14 py-3 md:py-4 bg-slate-50 border border-slate-200 rounded-xs outline-none focus:ring-2 focus:ring-[#0056D2]/20 focus:border-[#0056D2] transition-all resize-none text-sm md:text-base"
                 />
                 <button 
                   onClick={handleSendMessage}
@@ -176,12 +176,11 @@ const Chat = () => {
         <div className="p-4 flex flex-col h-full min-w-72">
           {/* Logo + Title */}
           <div className="flex items-center gap-2 mb-6 px-2">
-            <img src={logo} alt="EduTwin Logo" className="w-6 h-6 object-contain" />
             <span className="font-bold text-slate-800 text-base">History</span>
           </div>
 
           {/* New Chat Button */}
-          <button className="flex items-center gap-3 w-full p-3 bg-white border border-slate-200 rounded-xl font-medium hover:bg-slate-100 transition-all shadow-sm mb-6">
+          <button className="flex items-center gap-3 w-full p-3 bg-white border border-slate-200 rounded-xs font-medium hover:bg-slate-100 transition-all shadow-sm mb-6">
             <Plus size={18} />
             <span>New Chat</span>
           </button>
