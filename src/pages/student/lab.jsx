@@ -9,6 +9,8 @@ import {
   ArrowRight,
   Info
 } from 'lucide-react';
+import canvasModels from "./sampleCanvas.json";
+import { useNavigate } from 'react-router-dom';
 
 /* =========================
    Flat Components
@@ -25,14 +27,15 @@ const LabStat = ({ label, value, Icon }) => (
 );
 
 const Lab = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('canvas');
 
   return (
-    <div className="h-screen flex flex-col bg-white font-sans overflow-hidden">
+    <div className="h-full flex flex-col bg-white font-sans overflow-hidden">
       
       {/* Header - Flat Branding */}
       <div className="border-b border-gray-200 bg-white shrink-0">
-        <div className="px-4 py-3 flex items-center justify-between">
+        <div className="py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-[#0056D2] flex items-center justify-center">
               <FlaskConical size={18} className="text-white" />
@@ -49,7 +52,7 @@ const Lab = () => {
       </div>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto bg-white p-5 space-y-6">
+      <main className="flex-1 overflow-y-auto bg-white py-5 space-y-6">
         
         {/* Summary Section */}
         <div className="border border-gray-200">
@@ -75,56 +78,66 @@ const Lab = () => {
         </div>
 
         {/* Interaction Section */}
-        <div className="border border-gray-200 bg-gray-50">
+        <div className="border border-gray-200 bg-gray-50 flex flex-col flex-1">
           {/* Subject Selector */}
-          <div className="p-4 border-b border-gray-200 bg-white">
-  <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Select Domain</label>
-  <div className="relative group">
-    <button className="w-full flex justify-between items-center px-3 py-2 border border-gray-300 text-sm font-semibold rounded-xs hover:border-gray-400 transition-colors">
-      Biology
-      <ChevronDown size={16} className="transition-transform group-hover:rotate-180" />
-    </button>
-    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xs shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
-      {subjects.map((domain) => (
-        <button 
-          key={domain}
-          className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 first:rounded-t-lg last:rounded-b-lg transition-colors"
-        >
-          {domain}
-        </button>
-      ))}
-    </div>
-  </div>
-</div>
-
-          {/* Toggle Tabs */}
-          
-
-          {/* Unit List */}
-          <div className="p-5 space-y-4">
-            <div className="flex items-center gap-2">
-               <span className="bg-[#0056D2] text-white text-[10px] font-bold px-3 py-1">UNIT 01</span>
-               <div className="h-px bg-gray-200 flex-1"></div>
+          <div className="p-4 border-b border-gray-200 bg-white shrink-0">
+            <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Select Domain</label>
+            <div className="relative group">
+              <button className="w-full flex justify-between items-center px-3 py-2 border border-gray-300 text-sm font-semibold rounded-xs hover:border-gray-400 transition-colors">
+                Biology
+                <ChevronDown size={16} className="transition-transform group-hover:rotate-180" />
+              </button>
+              <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xs shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 max-h-48 overflow-y-auto">
+                {subjects.map((domain) => (
+                  <button 
+                    key={domain}
+                    className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 first:rounded-t-lg last:rounded-b-lg transition-colors"
+                  >
+                    {domain}
+                  </button>
+                ))}
+              </div>
             </div>
+          </div>
 
-            <div className="border border-dashed border-gray-300 py-10 flex flex-col items-center justify-center text-center">
-               <div className="w-10 h-10 bg-gray-100 flex items-center justify-center mb-3">
-                  <Search size={18} className="text-gray-400" />
-               </div>
-               <p className="text-sm font-bold text-gray-800 italic">No models available in this section</p>
-               <p className="text-[10px] text-gray-500 uppercase mt-1">Please select another unit or subject</p>
+          {/* Unit List - Takes remaining height */}
+          <div className="p-5 flex-1 flex flex-col min-h-0">
+           
+
+            <div className="flex-1 border border-dashed border-gray-300 mt-4 flex flex-col items-center justify-center text-center overflow-y-auto">
+              {canvasModels.length === 0 ? (
+                <>
+                  <div className="w-10 h-10 bg-gray-100 flex items-center justify-center mb-3">
+                    <Search size={18} className="text-gray-400" />
+                </div>
+                <p className="text-sm font-bold text-gray-800 italic">No models available in this section</p>
+                <p className="text-[10px] text-gray-500 uppercase mt-1">Please select another unit or subject</p>
+                </>
+              ):(
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full p-4">
+                  {canvasModels.map((model) => (
+                    <div key={model.id} className="border border-gray-200 rounded-xs flex  items-center hover:shadow-sm transition-shadow cursor-pointer"
+                    onClick={() => navigate(`/lab-access-drive/${model.id}`)}
+                    >
+                      <div className="w-[20%] h-full flex items-center justify-center bg-gray-100">
+
+                      <FlaskConical size={40} className="text-[#0056D2]" />
+                      </div>
+                      <div className="flex flex-col w-[80%] h-full border-l border-gray-200 text-left p-2 ">
+                        <h3 className="text-lg font-bold text-gray-900">{model.title}</h3>
+                        <p className="text-sm text-gray-600 mt-1">{model.chapter}</p>
+                        <p className="text-sm text-gray-600 mt-1">{model.subject}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>  
+              )}
             </div>
           </div>
         </div>
 
         {/* Footer Prompt */}
-        <div className="border border-gray-200 p-6 bg-white flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-sm text-gray-600 font-medium">Ready to explore visual concepts?</p>
-            <button className="flex items-center gap-2 bg-[#0056D2] text-white px-6 py-2 text-xs font-bold uppercase tracking-widest hover:bg-[#0045b0] transition-colors">
-              Request Access
-              <ArrowRight size={14} />
-            </button>
-        </div>
+        
 
       </main>
     </div>

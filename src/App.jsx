@@ -15,6 +15,7 @@ import Chat from './pages/student/chat'
 import Dashbored from "./pages/student/dashbored"
 import ProfilePage from './pages/profile'
 import Practice from './pages/student/practice'
+import LabAccessDrive from './pages/student/canvasPage'
 
 function App() {
   return (
@@ -32,6 +33,14 @@ function App() {
           element={
             <SidebarLayout>
               <Chat />
+            </SidebarLayout>
+          }
+        />
+        <Route
+          path="/lab-access-drive/:canvasId"
+          element={
+            <SidebarLayout>
+              <LabAccessDrive/>
             </SidebarLayout>
           }
         />
