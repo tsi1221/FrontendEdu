@@ -13,6 +13,7 @@ import Settings from './pages/setting'
 import Chat from './pages/student/chat'
 import Dashbored from "./pages/student/dashbored"
 import ProfilePage from './pages/profile'
+import Practice from './pages/student/practice'
 
 function App() {
   return (
@@ -52,7 +53,7 @@ function App() {
         />
 
         <Route
-          path="/practice-hub"
+          path="/practicehub"
           element={
             <SidebarLayout>
               <PracticeHub />
@@ -82,6 +83,14 @@ function App() {
           element={
             <SidebarLayout>
               <ProfilePage />
+            </SidebarLayout>
+          }
+        /> 
+          <Route
+          path="/practice"
+          element={
+            <SidebarLayout>
+              <Practice/>
             </SidebarLayout>
           }
         />

@@ -11,7 +11,7 @@ const SidebarLayout = ({ children }) => {
     { icon: <LayoutDashboard size={20} />, label: 'Dashboard', path: '/dashbored' },
     { icon: <MessageSquare size={20} />, label: 'Chat', path: '/chat' },
     { icon: <FlaskConical size={20} />, label: 'Virtual Labs', path: '/lab' },
-    { icon: <BrainCircuit size={20} />, label: 'Practice-hub', path: '/practice-hub' },
+    { icon: <BrainCircuit size={20} />, label: 'Practice-hub', path: '/practicehub' },
     { icon: <Book size={20} />, label: 'Textbook', path: '/text-book' },
     { icon: <Settings size={20} />, label: 'Settings', path: '/settings' },
   ];
