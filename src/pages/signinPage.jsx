@@ -50,7 +50,7 @@ const SignupPage = () => {
     }
     // Dummy signup – store role and redirect
     localStorage.setItem('userRole', 'student');
-    navigate('/dashboard');
+    navigate('/dashbored');
   };
 
   return (
