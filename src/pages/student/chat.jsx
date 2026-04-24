@@ -9,7 +9,6 @@ import {
   PanelLeftOpen,
   GraduationCap
 } from 'lucide-react';
-import logo from '../../../src/assets/logo.png';
 
 const Chat = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);

@@ -1,40 +1,46 @@
+// SidebarLayout.jsx (role‑aware: student & teacher)
 import { useState, useMemo } from 'react';
 import {
-  LayoutDashboard, Settings, Menu, MessageSquare,
-  FlaskConical, BrainCircuit, Book, FileQuestion
+  LayoutDashboard,
+  Settings,
+  Menu,
+  MessageSquare,
+  FlaskConical,
+  BrainCircuit,
+  Book,
+  FileQuestion,
 } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import logo from '../../../src/assets/logo.png';
 
-const SidebarLayout = ({ children, userRole }) => {
+const SidebarLayout = ({ children, userRole = 'student' }) => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
-  // Determine the effective role (prop takes precedence, then localStorage, default to 'student')
+  // Define navigation items for each role
+  const studentNavItems = [
+    { icon: <LayoutDashboard size={20} />, label: 'Dashboard', path: '/dashbored' },
+    { icon: <MessageSquare size={20} />, label: 'Chat', path: '/chat' },
+    { icon: <FlaskConical size={20} />, label: 'Virtual Labs', path: '/lab' },
+    { icon: <BrainCircuit size={20} />, label: 'Practice Hub', path: '/practicehub' },
+    { icon: <Book size={20} />, label: 'Textbook', path: '/text-books' },
+    { icon: <Settings size={20} />, label: 'Settings', path: '/settings' },
+  ];
+
+  const teacherNavItems = [
+    { icon: <LayoutDashboard size={20} />, label: 'Dashboard', path: '/teacher-dashboared' },
+    { icon: <FileQuestion size={20} />, label: 'Quiz Generate', path: '/quizes-geerate' },
+    { icon: <Settings size={20} />, label: 'Settings', path: '/settings' },
+  ];
+
+  // Choose the correct nav based on role prop
   const effectiveRole = useMemo(() => {
-    if (userRole && ['student', 'teacher', 'admin'].includes(userRole)) {
-      return userRole;
-    }
-    const storedRole = localStorage.getItem('userRole');
-    if (storedRole && ['student', 'teacher', 'admin'].includes(storedRole)) {
-      return storedRole;
-    }
+    if (userRole === 'teacher') return 'teacher';
     return 'student';
   }, [userRole]);
 
-  // Define all possible navigation items with their allowed roles
-  const allNavItems = [
-    { icon: <LayoutDashboard size={20} />, label: 'Dashboard', path: '/dashbored', roles: ['student', 'teacher', 'admin'] },
-    { icon: <MessageSquare size={20} />, label: 'Chat', path: '/chat', roles: ['student', 'admin'] },
-    { icon: <FlaskConical size={20} />, label: 'Virtual Labs', path: '/lab', roles: ['student', 'admin'] },
-    { icon: <BrainCircuit size={20} />, label: 'Practice Hub', path: '/practicehub', roles: ['student', 'admin'] },
-    { icon: <Book size={20} />, label: 'Textbook', path: '/text-books', roles: ['student', 'admin'] },
-    { icon: <FileQuestion size={20} />, label: 'Quiz Generate', path: '/quiz-generate', roles: ['teacher', 'admin'] },
-    { icon: <Settings size={20} />, label: 'Settings', path: '/settings', roles: ['student', 'teacher', 'admin'] },
-  ];
-
-  // Filter items based on the effective role
-  const navItems = allNavItems.filter(item => item.roles.includes(effectiveRole));
+  const navItems = effectiveRole === 'teacher' ? teacherNavItems : studentNavItems;
 
   const handleProfileClick = () => {
     setIsOpen(false);
@@ -52,11 +58,13 @@ const SidebarLayout = ({ children, userRole }) => {
       )}
 
       {/* Sidebar */}
-      <aside className={`
-        fixed inset-y-0 left-0 z-30 w-64 bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out
-        lg:relative lg:translate-x-0
-        ${isOpen ? 'translate-x-0' : '-translate-x-full'}
-      `}>
+      <aside
+        className={`
+          fixed inset-y-0 left-0 z-30 w-64 bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out
+          lg:relative lg:translate-x-0
+          ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+        `}
+      >
         <div className="flex flex-col h-full">
           {/* Logo area */}
           <div className="px-4 py-4 border-b border-gray-200">
@@ -70,30 +78,41 @@ const SidebarLayout = ({ children, userRole }) => {
             </div>
           </div>
 
-          {/* Navigation - increased vertical spacing */}
+          {/* Navigation */}
           <nav className="flex-1 px-2 py-4 space-y-2">
-            {navItems.map((item) => (
-              <Link
-                key={item.label}
-                to={item.path}
-                onClick={() => setIsOpen(false)}
-                className="flex items-center gap-3 px-3 py-2 text-gray-700 hover:bg-gray-100 transition-colors group"
-              >
-                <span className="text-gray-500 group-hover:text-[#0056D2] transition-colors">
-                  {item.icon}
-                </span>
-                <span className="text-sm font-medium">{item.label}</span>
-              </Link>
-            ))}
+            {navItems.map((item) => {
+              const isActive = location.pathname === item.path;
+              return (
+                <Link
+                  key={item.label}
+                  to={item.path}
+                  onClick={() => setIsOpen(false)}
+                  className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors group ${
+                    isActive
+                      ? 'bg-indigo-50 text-[#0056D2] font-semibold'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  <span
+                    className={`${
+                      isActive ? 'text-[#0056D2]' : 'text-gray-500'
+                    } group-hover:text-[#0056D2] transition-colors`}
+                  >
+                    {item.icon}
+                  </span>
+                  <span className="text-sm font-medium">{item.label}</span>
+                </Link>
+              );
+            })}
           </nav>
 
           {/* Profile section */}
           <div className="border-t border-gray-200 p-3">
             <button
               onClick={handleProfileClick}
-              className="w-full flex items-center gap-3 px-2 py-2 hover:bg-gray-100 transition-colors"
+              className="w-full flex items-center gap-3 px-2 py-2 hover:bg-gray-100 rounded-lg transition-colors"
             >
-              <div className="w-8 h-8 bg-gray-200 flex items-center justify-center">
+              <div className="w-8 h-8 bg-gray-200 flex items-center justify-center rounded-full">
                 <span className="text-gray-700 text-sm font-medium">AR</span>
               </div>
               <div className="flex flex-col text-left">
@@ -117,15 +136,16 @@ const SidebarLayout = ({ children, userRole }) => {
             />
             <span className="font-bold text-[#0056D2] text-lg">EduTwin</span>
           </div>
-          <button onClick={() => setIsOpen(true)} className="p-1 text-gray-600 hover:bg-gray-100">
+          <button
+            onClick={() => setIsOpen(true)}
+            className="p-1 text-gray-600 hover:bg-gray-100 rounded-lg"
+          >
             <Menu size={24} />
           </button>
         </header>
 
         {/* Content wrapper */}
-        <div className="flex-1 p-4">
-          {children}
-        </div>
+        <div className="flex-1 p-4">{children}</div>
       </main>
     </div>
   );

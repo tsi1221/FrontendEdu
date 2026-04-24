@@ -38,7 +38,7 @@ const Hero = memo(() => {
     }));
   }, []);
 
-  const handleJoin = () => navigate("/register");
+  const handleJoin = () => navigate("/signup");
 
   return (
     <section

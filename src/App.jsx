@@ -15,6 +15,8 @@ import Chat from './pages/student/chat'
 import Dashbored from "./pages/student/dashbored"
 import ProfilePage from './pages/profile'
 import Practice from './pages/student/practice'
+import TeacherDashboard from './pages/teacher/dashbored'
+import Quiz from './pages/teacher/quiz'
 
 function App() {
   return (
@@ -100,6 +102,26 @@ function App() {
           element={
             <SidebarLayout>
               <Practice/>
+            </SidebarLayout>
+          }
+        />
+
+
+        {/* /new teacher */}
+       
+        <Route
+          path="/teacher-dashbored"
+          element={
+            <SidebarLayout>
+              < TeacherDashboard/>
+            </SidebarLayout>
+          }
+        />
+        <Route
+          path="/quizes-geerate"
+          element={
+            <SidebarLayout>
+              < Quiz/>
             </SidebarLayout>
           }
         />
