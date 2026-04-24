@@ -123,7 +123,7 @@ const SidebarLayout = ({ children, userRole }) => {
         </header>
 
         {/* Content wrapper */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 ">
           {children}
         </div>
       </main>

@@ -15,7 +15,7 @@ const LoginPage = () => {
     if (email && password) {
       // Dummy authentication – replace with real API call
       localStorage.setItem('userRole', 'student');
-      navigate('/dashboard');
+      navigate('/dashbored');
     } else {
       setError('Please enter both email and password');
     }
