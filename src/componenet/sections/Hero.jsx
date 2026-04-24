@@ -1,6 +1,7 @@
 import { memo, useMemo, useContext } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 import { LanguageContext } from "../../context/LanguageContext";
 import { RippleButton } from "../ui/RippleButton";
@@ -9,6 +10,7 @@ import landing from "../../assets/landing.png";
 
 const Hero = memo(() => {
   const languageContext = useContext(LanguageContext);
+  const navigate = useNavigate();
 
   const t = languageContext?.t ?? ((key) => key);
   const language = languageContext?.language ?? "en";
@@ -19,147 +21,135 @@ const Hero = memo(() => {
   const heroOpacity = useTransform(scrollY, [0, 320], [1, 0]);
 
   const animatedTexts = useMemo(() => {
-    if (language === "en") {
-      return ["EduTwin AI", "3D Visuals", "Personalized Tutor"];
-    }
-
     if (language === "om") {
       return ["EduTwin AI", "Viizhulaayizeeshinii 3D", "Barsiisaa Dhuunfaa"];
     }
-
-    // Default to English if language not supported
     return ["EduTwin AI", "3D Visuals", "Personalized Tutor"];
   }, [language]);
 
-  const handleGetStarted = () => {
-    window.location.href = "/register";
-  };
+  const particles = useMemo(() => {
+    return Array.from({ length: 50 }).map(() => ({
+      top: Math.random() * 100,
+      left: Math.random() * 100,
+      duration: 3 + Math.random() * 4,
+      delay: Math.random() * 2,
+    }));
+  }, []);
 
-  const handleExploreCourses = () => {
-    document
-      .getElementById("features")
-      ?.scrollIntoView({ behavior: "smooth" });
+  const handleJoin = () => {
+    navigate("/register");
   };
 
   return (
     <section
       id="home"
-      className="relative overflow-hidden px-6 pb-20 pt-28 md:pb-24 md:pt-32"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden px-6"
     >
-      {/* ================= Fancy Overlay Background ================= */}
+      {/* Background */}
+      <div className="absolute inset-0 z-0">
+        <img
+          src={landing}
+          alt="Background"
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-linear-to-br from-[#0056D2]/90 via-[#003d99]/85 to-[#001a4d]/90" />
+      </div>
+
+      {/* Effects */}
       <motion.div
         style={{ y: heroY, opacity: heroOpacity }}
-        className="absolute inset-0 pointer-events-none"
+        className="absolute inset-0 pointer-events-none z-0"
       >
-        {/* Main black cinematic overlay */}
-        <div className="absolute inset-0 bg-black/5" />
+        <div className="absolute top-20 left-10 w-96 h-96 bg-white/10 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-white/5 rounded-full blur-[150px] animate-pulse" />
 
-        {/* Elegant gradient darkness */}
-        <div className="absolute inset-0 bg-linear-to-br from-black/5 via-black/2 to-black/16" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-100 h-100[#0056D2]/20 rounded-full blur-[140px]" />
 
-        {/* Luxury spotlight fade */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.08),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.04),transparent_30%)]" />
-
-        {/* Primary Blue premium glows - Updated to #0056D2 */}
-        <div className="absolute -left-16 top-10 h-80 w-80 rounded-full bg-[#0056D2]/20 blur-[140px] animate-pulse" />
-        <div className="absolute -right-20 bottom-10 h-104 w-104 rounded-full bg-[#0056D2]/15 blur-[160px] animate-pulse" />
-        <div className="absolute left-[35%] top-[25%] h-72 w-72 rounded-full bg-[#0056D2]/10 blur-[140px]" />
-
-        {/* Glass noise grid */}
-        <div
-          className="absolute inset-0 opacity-[0.06]"
-          style={{
-            backgroundImage: `
-              linear-gradient(rgba(255,255,255,0.7) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(255,255,255,0.7) 1px, transparent 1px)
-            `,
-            backgroundSize: "36px 36px",
-          }}
-        />
+        {/* Particles */}
+        <div className="absolute inset-0">
+          {particles.map((p, i) => (
+            <div
+              key={i}
+              className="absolute w-1 h-1 bg-white/40 rounded-full"
+              style={{
+                top: `${p.top}%`,
+                left: `${p.left}%`,
+                animation: `float ${p.duration}s infinite ease-in-out`,
+                animationDelay: `${p.delay}s`,
+              }}
+            />
+          ))}
+        </div>
       </motion.div>
 
-      {/* ================= Content ================= */}
-      <div className="relative z-10 mx-auto flex max-w-7xl flex-col items-center gap-10 lg:flex-row lg:gap-14">
-        {/* Left Content */}
-        <div className="flex-1 text-center lg:text-left">
-          <motion.div
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-            className="mb-4 inline-flex rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium text-white/90 backdrop-blur-xl"
-          >
-            {/* Badge content can be added here if needed */}
-          </motion.div>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 28 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.1 }}
-            className="text-4xl font-bold leading-tight text-black md:text-5xl lg:text-6xl"
-          >
-            {t("learnSmarter")}
-            <br className="hidden sm:block" />
-            <span className="bg-linear-to-r from-[#0056D2] via-[#4a8eff] to-[#0056D2] bg-clip-text text-transparent">
-              <AnimatedText texts={animatedTexts} />
-            </span>
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="mx-auto mt-5 max-w-xl text-base leading-7 text-blue-400 md:text-lg lg:mx-0"
-          >
-            {t("heroDescription")}
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.45 }}
-            className="mt-8 flex flex-col justify-center gap-4 sm:flex-row lg:justify-start"
-          >
-            <RippleButton
-              onClick={handleGetStarted}
-              variant="primary"
-              icon={<ArrowRight size={18} />}
-            >
-              {t("getStarted")}
-            </RippleButton>
-
-            <RippleButton
-              onClick={handleExploreCourses}
-              variant="outline"
-            >
-              {t("exploreCourses")}
-            </RippleButton>
-          </motion.div>
-        </div>
-
-        {/* Right Image Card */}
-        <motion.div
-          initial={{ opacity: 0, x: 35, scale: 0.96 }}
-          animate={{ opacity: 1, x: 0, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="flex-1"
+      {/* Content */}
+      <div className="relative z-10 max-w-4xl text-center">
+        <motion.h1
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-tight"
         >
-          <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-white/10 shadow-[0_25px_80px_rgba(0,0,0,0.35)] backdrop-blur-xl">
-            {/* Image */}
-            <img
-              src={landing}
-              alt="Educational platform"
-              className="h-auto w-full object-cover"
-              loading="eager"
-            />
+          {t("learnSmarter")}
+          <br />
+          <span className="bg-linear-to-r from-white via-white/90 to-white/70 bg-clip-text text-transparent">
+            <AnimatedText texts={animatedTexts} />
+          </span>
+        </motion.h1>
 
-            {/* Dark image overlay */}
-            <div className="absolute inset-0 bg-linear-to-t from-black/35 via-transparent to-black/10" />
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3, duration: 0.6 }}
+          className="mt-6 text-base md:text-lg text-white/80 max-w-xl mx-auto leading-relaxed"
+        >
+          Learn faster with AI-powered 3D visualizations and personalized tutoring experiences designed for modern students.
+        </motion.p>
 
-            {/* Glow border - Updated to primary blue */}
-            <div className="pointer-events-none absolute inset-0 rounded-3xl ring-1 ring-[#0056D2]/30" />
-          </div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.6 }}
+          className="mt-8 flex justify-center"
+        >
+          <RippleButton
+            onClick={handleJoin}
+            variant="primary"
+            icon={<ArrowRight size={18} />}
+            className="text-black! bg-white hover:bg-white/90 shadow-lg"
+          >
+            Join Now
+          </RippleButton>
         </motion.div>
       </div>
+
+      {/* Scroll indicator */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1 }}
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
+      >
+        <div className="w-6 h-10 rounded-full border-2 border-white/30 flex justify-center">
+          <motion.div
+            animate={{ y: [0, 12, 0] }}
+            transition={{ repeat: Infinity, duration: 1.5 }}
+            className="w-1 h-2 bg-white/50 rounded-full mt-2"
+          />
+        </div>
+      </motion.div>
+
+      {/* Keyframes */}
+      <style>{`
+        @keyframes float {
+          0%, 100% {
+            transform: translateY(0px) translateX(0px);
+          }
+          50% {
+            transform: translateY(-20px) translateX(10px);
+          }
+        }
+      `}</style>
     </section>
   );
 });
