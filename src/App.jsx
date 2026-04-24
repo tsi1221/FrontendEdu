@@ -11,6 +11,7 @@ import PracticeHub from './pages/student/practiceHub'
 import TextBook from './pages/student/textbook'
 import Settings from './pages/setting'
 import Chat from './pages/student/chat'
+import Dashbored from "./pages/student/dashbored"
 
 function App() {
   return (
@@ -28,6 +29,14 @@ function App() {
           element={
             <SidebarLayout>
               <Chat />
+            </SidebarLayout>
+          }
+        />
+        <Route
+          path="/dashbored"
+          element={
+            <SidebarLayout>
+              <Dashbored />
             </SidebarLayout>
           }
         />

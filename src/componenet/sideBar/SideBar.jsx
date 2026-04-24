@@ -6,7 +6,7 @@ const SidebarLayout = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const navItems = [
-    { icon: <LayoutDashboard size={20} />, label: 'Dashboard', path: '/' },
+    { icon: <LayoutDashboard size={20} />, label: 'Dashboard', path: '/dashbored' },
     { icon: <MessageSquare size={20} />, label: 'Chat', path: '/chat' },
     { icon: <FlaskConical size={20} />, label: 'Virtual Labs', path: '/lab' },
     { icon: <BrainCircuit size={20} />, label: 'Practice-hub', path: '/practice-hub' },
