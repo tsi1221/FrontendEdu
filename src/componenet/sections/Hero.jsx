@@ -16,29 +16,29 @@ const Hero = memo(() => {
   const language = languageContext?.language ?? "en";
 
   const { scrollY } = useScroll();
-
   const heroY = useTransform(scrollY, [0, 500], [0, 140]);
   const heroOpacity = useTransform(scrollY, [0, 320], [1, 0]);
 
   const animatedTexts = useMemo(() => {
-    if (language === "om") {
-      return ["EduTwin AI", "Viizhulaayizeeshinii 3D", "Barsiisaa Dhuunfaa"];
-    }
-    return ["EduTwin AI", "3D Visuals", "Personalized Tutor"];
+    return language === "om"
+      ? ["EduTwin AI", "Viizhulaayizeeshinii 3D", "Barsiisaa Dhuunfaa"]
+      : ["EduTwin AI", "3D Visuals", "Personalized Tutor"];
   }, [language]);
 
+  // ✅ CENTERED PARTICLES (around text)
   const particles = useMemo(() => {
-    return Array.from({ length: 50 }).map(() => ({
-      top: Math.random() * 100,
-      left: Math.random() * 100,
-      duration: 3 + Math.random() * 4,
+    return Array.from({ length: 60 }).map(() => ({
+      top: 50 + (Math.random() - 0.5) * 40,   // center Y
+      left: 50 + (Math.random() - 0.5) * 40,  // center X
+      size: 1 + Math.random() * 2.5,
+      duration: 4 + Math.random() * 5,
       delay: Math.random() * 2,
+      driftX: (Math.random() - 0.5) * 20,
+      driftY: (Math.random() - 0.5) * 20,
     }));
   }, []);
 
-  const handleJoin = () => {
-    navigate("/register");
-  };
+  const handleJoin = () => navigate("/register");
 
   return (
     <section
@@ -47,11 +47,7 @@ const Hero = memo(() => {
     >
       {/* Background */}
       <div className="absolute inset-0 z-0">
-        <img
-          src={landing}
-          alt="Background"
-          className="w-full h-full object-cover"
-        />
+        <img src={landing} className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-linear-to-br from-[#0056D2]/90 via-[#003d99]/85 to-[#001a4d]/90" />
       </div>
 
@@ -60,34 +56,38 @@ const Hero = memo(() => {
         style={{ y: heroY, opacity: heroOpacity }}
         className="absolute inset-0 pointer-events-none z-0"
       >
-        <div className="absolute top-20 left-10 w-96 h-96 bg-white/10 rounded-full blur-[120px] animate-pulse" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-white/5 rounded-full blur-[150px] animate-pulse" />
+        <div className="absolute top-20 left-10 w-96 h-96 bg-white/10 rounded-full blur-[120px]" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-white/5 rounded-full blur-[150px]" />
+      </motion.div>
 
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-100 h-100[#0056D2]/20 rounded-full blur-[140px]" />
-
-        {/* Particles */}
-        <div className="absolute inset-0">
+      {/* CONTENT */}
+      <div className="relative z-10 max-w-4xl text-center">
+        
+        {/* ⭐ CENTERED WHITE PARTICLES AROUND TEXT */}
+        <div className="absolute inset-0 pointer-events-none">
           {particles.map((p, i) => (
             <div
               key={i}
-              className="absolute w-1 h-1 bg-white/40 rounded-full"
+              className="absolute rounded-full bg-white"
               style={{
                 top: `${p.top}%`,
                 left: `${p.left}%`,
-                animation: `float ${p.duration}s infinite ease-in-out`,
+                width: `${p.size}px`,
+                height: `${p.size}px`,
+                opacity: 0.6,
+                boxShadow: "0 0 8px rgba(255,255,255,0.6)",
+                transform: "translate(-50%, -50%)",
+                animation: `float ${p.duration}s ease-in-out infinite`,
                 animationDelay: `${p.delay}s`,
               }}
             />
           ))}
         </div>
-      </motion.div>
 
-      {/* Content */}
-      <div className="relative z-10 max-w-4xl text-center">
+        {/* TEXT */}
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
           className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-tight"
         >
           {t("learnSmarter")}
@@ -100,23 +100,22 @@ const Hero = memo(() => {
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.3, duration: 0.6 }}
-          className="mt-6 text-base md:text-lg text-white/80 max-w-xl mx-auto leading-relaxed"
+          transition={{ delay: 0.3 }}
+          className="mt-6 text-white/80 max-w-xl mx-auto"
         >
           Learn faster with AI-powered 3D visualizations and personalized tutoring experiences designed for modern students.
         </motion.p>
 
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.6 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
           className="mt-8 flex justify-center"
         >
           <RippleButton
             onClick={handleJoin}
-            variant="primary"
             icon={<ArrowRight size={18} />}
-            className="text-black! bg-white hover:bg-white/90 shadow-lg"
+            className="bg-white text-black! hover:bg-white/90"
           >
             Join Now
           </RippleButton>
@@ -124,29 +123,24 @@ const Hero = memo(() => {
       </div>
 
       {/* Scroll indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
-      >
-        <div className="w-6 h-10 rounded-full border-2 border-white/30 flex justify-center">
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10">
+        <div className="w-6 h-10 border border-white/30 rounded-full flex justify-center">
           <motion.div
             animate={{ y: [0, 12, 0] }}
             transition={{ repeat: Infinity, duration: 1.5 }}
-            className="w-1 h-2 bg-white/50 rounded-full mt-2"
+            className="w-1 h-2 bg-white/60 rounded-full mt-2"
           />
         </div>
-      </motion.div>
+      </div>
 
-      {/* Keyframes */}
+      {/* FLOAT ANIMATION */}
       <style>{`
         @keyframes float {
           0%, 100% {
-            transform: translateY(0px) translateX(0px);
+            transform: translate(-50%, -50%) translate(0px, 0px);
           }
           50% {
-            transform: translateY(-20px) translateX(10px);
+            transform: translate(-50%, -50%) translate(10px, -18px);
           }
         }
       `}</style>

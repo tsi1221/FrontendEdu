@@ -16,12 +16,11 @@ function App() {
   return (
     <div className="w-full h-screen">
       <Routes>
-
         {/* Public routes */}
         <Route path="/" element={<MainLayout />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
-
+         {/* <Route path="/dashboard" element={<Dashboard/>} /> */}
         {/* Protected / App layout routes */}
         <Route
           path="/chat"
