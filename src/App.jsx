@@ -71,7 +71,7 @@ function App() {
         />
 
         <Route
-          path="/text-book"
+          path="/text-book/:textbookId"
           element={
             <SidebarLayout>
               <TextBook />

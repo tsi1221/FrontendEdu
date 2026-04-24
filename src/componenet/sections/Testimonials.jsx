@@ -233,4 +233,4 @@ const Testimonials = memo(() => {
 
 Testimonials.displayName = 'Testimonials';
 
-export { Testimonials };
+export default Testimonials 
