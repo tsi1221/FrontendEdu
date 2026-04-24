@@ -42,7 +42,7 @@ const SidebarLayout = ({ children, userRole }) => {
   };
 
   return (
-    <div className="flex h-screen w-full p-4 bg-white overflow-hidden">
+    <div className="flex h-screen w-full bg-white overflow-hidden">
       {/* Mobile overlay */}
       {isOpen && (
         <div
@@ -106,7 +106,7 @@ const SidebarLayout = ({ children, userRole }) => {
       </aside>
 
       {/* Main content area */}
-      <main className="flex-1 flex flex-col min-w-0  px-4 bg-white">
+      <main className="flex-1 flex flex-col min-w-0 bg-white">
         {/* Mobile header */}
         <header className="lg:hidden flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white">
           <div className="flex items-center gap-2">
@@ -123,7 +123,7 @@ const SidebarLayout = ({ children, userRole }) => {
         </header>
 
         {/* Content wrapper */}
-        <div className="flex-1 ">
+        <div className="flex-1 p-4">
           {children}
         </div>
       </main>
