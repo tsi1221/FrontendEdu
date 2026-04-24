@@ -1,81 +1,112 @@
-import React, { useState } from 'react';
+import { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   User, Mail, ShieldCheck, CreditCard, 
   LogOut, Camera, Save, ChevronRight, Menu, X
 } from 'lucide-react';
 
 const ProfilePage = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('details');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const fileInputRef = useRef(null);
+
   const [profile, setProfile] = useState({
     name: "Ayna",
     email: "ayna@example.com",
     avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Ayna",
     subscription: "Pro Plan",
-    expiry: "Dec 2026"
+    expiry: "Dec 2026",
+    phone: "+1 234 567 890",
+    location: "New York, USA"
   });
 
   const handleLogout = () => {
-    console.log("Logging out...");
-    // navigate('/login');
+    // Clear any stored authentication data if needed
+    localStorage.removeItem('userRole');
+    navigate('/');
+  };
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfile(prev => ({ ...prev, avatar: reader.result }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleProfileUpdate = (field, value) => {
+    setProfile(prev => ({ ...prev, [field]: value }));
   };
 
   return (
-    <div className="h-full bg-gray-50 ">
-      <div className="w-full h-screen sm:h-auto bg-white border-2 border-gray-200 overflow-hidden flex flex-col md:flex-row md:rounded-lg lg:rounded-lg md:h-[750px] lg:h-[800px] xl:h-[850px]">
+    <div className="h-full w-full bg-white">
+      <div className="flex flex-col md:flex-row h-full">
         
         {/* Mobile Header */}
-        <div className="md:hidden flex items-center justify-between p-6  border-b border-gray-100">
+        <div className="md:hidden flex items-center justify-between p-4 border-b border-gray-200">
           <div className="flex items-center gap-3">
             <img 
               src={profile.avatar} 
               alt="Profile" 
-              className="w-10 h-10 rounded-xl object-cover ring-2 ring-white shadow-md"
+              className="w-8 h-8 object-cover border border-gray-200"
             />
             <div>
-              <h2 className="font-bold text-gray-800">{profile.name}</h2>
-              <p className="text-xs text-gray-500 font-medium">{profile.subscription}</p>
+              <h2 className="font-medium text-sm text-gray-900">{profile.name}</h2>
+              <p className="text-xs text-gray-500">{profile.subscription}</p>
             </div>
           </div>
           <button 
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
+            className="p-1 text-gray-600 hover:bg-gray-100"
           >
             {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
 
-        {/* LEFT NAV: Sidebar */}
+        {/* LEFT SIDEBAR */}
         <div className={`
           ${mobileMenuOpen ? 'block' : 'hidden'} 
-          md:block w-full md:w-64 lg:w-72 xl:w-80 bg-gray-50 md:border-r border-gray-100 p-6 lg:p-8 flex flex-col
-          transition-all duration-300
+          md:block w-full md:w-64 border-r border-gray-200 bg-white p-4
         `}>
-          {/* Desktop Avatar */}
-          <div className="hidden md:block relative w-20 h-20 lg:w-24 lg:h-24 mx-auto mb-6 group">
+          {/* Desktop Avatar with upload */}
+          <div className="hidden md:block relative w-16 h-16 mx-auto mb-4">
             <img 
               src={profile.avatar} 
               alt="Profile" 
-              className="w-full h-full rounded-3xl object-cover ring-4 ring-white shadow-lg"
+              className="w-full h-full object-cover border border-gray-200"
             />
-            <button className="absolute bottom-0 right-0 p-2 bg-brand-primary text-white rounded-xl shadow-lg transform translate-x-1 translate-y-1 hover:scale-110 transition-all duration-300">
-              <Camera size={16} />
+            <button 
+              onClick={() => fileInputRef.current.click()}
+              className="absolute bottom-0 right-0 p-1 bg-[#0056D2] text-white translate-x-1 translate-y-1 hover:bg-[#0045b0] transition-colors"
+            >
+              <Camera size={12} />
             </button>
+            <input 
+              type="file"
+              ref={fileInputRef}
+              onChange={handleAvatarChange}
+              accept="image/*"
+              className="hidden"
+            />
           </div>
           
-          <div className="hidden md:block text-center mb-10">
-            <h2 className="font-bold text-gray-800 text-lg lg:text-xl">{profile.name}</h2>
-            <p className="text-xs text-gray-500 font-bold uppercase tracking-widest">{profile.subscription}</p>
+          <div className="hidden md:block text-center mb-6">
+            <h2 className="font-semibold text-gray-900 text-base">{profile.name}</h2>
+            <p className="text-xs text-gray-500">{profile.subscription}</p>
           </div>
 
-          <nav className="space-y-2 flex-1">
+          <nav className="space-y-1">
             <TabButton 
               active={activeTab === 'details'} 
               onClick={() => {
                 setActiveTab('details');
                 setMobileMenuOpen(false);
               }}
-              icon={<User size={18} />} 
+              icon={<User size={16} />} 
               label="Edit Profile" 
             />
             <TabButton 
@@ -84,7 +115,7 @@ const ProfilePage = () => {
                 setActiveTab('password');
                 setMobileMenuOpen(false);
               }}
-              icon={<ShieldCheck size={18} />} 
+              icon={<ShieldCheck size={16} />} 
               label="Security" 
             />
             <TabButton 
@@ -93,49 +124,89 @@ const ProfilePage = () => {
                 setActiveTab('billing');
                 setMobileMenuOpen(false);
               }}
-              icon={<CreditCard size={18} />} 
+              icon={<CreditCard size={16} />} 
               label="Subscription" 
             />
           </nav>
 
           <button 
             onClick={handleLogout}
-            className="flex items-center gap-3 w-full p-4 text-red-500 font-bold hover:bg-red-50 rounded-2xl transition-all mt-auto"
+            className="flex items-center gap-2 w-full mt-8 p-2 text-red-600 hover:bg-red-50 text-sm transition-colors"
           >
-            <LogOut size={18} />
+            <LogOut size={16} />
             <span>Logout</span>
           </button>
         </div>
 
-        {/* RIGHT SIDE: Content Area */}
-        <div className="flex-1 p-6 lg:p-10 xl:p-12 overflow-y-auto">
+        {/* RIGHT CONTENT */}
+        <div className="flex-1 pt-10 pl-10 overflow-y-auto">
           {activeTab === 'details' && (
-            <div className="animate-fadeIn max-w-2xl xl:max-w-3xl">
-              <h3 className="text-2xl lg:text-3xl font-bold text-gray-800 mb-6">Profile Details</h3>
-              <div className="space-y-6">
-                <InputGroup label="Full Name" value={profile.name} placeholder="Enter your name" />
-                <InputGroup label="Email Address" value={profile.email} placeholder="Enter your email" type="email" />
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <InputGroup label="Phone Number" value="+1 234 567 890" placeholder="Enter phone number" type="tel" />
-                  <InputGroup label="Location" value="New York, USA" placeholder="Enter location" />
+            <div className="max-w-2xl">
+              <h3 className="text-lg font-bold text-gray-900 mb-6">Profile Details</h3>
+              <div className="space-y-5">
+                {/* Mobile avatar upload (visible only on mobile) */}
+                <div className="md:hidden flex items-center gap-4 pb-3 border-b border-gray-200">
+                  <img 
+                    src={profile.avatar} 
+                    alt="Profile" 
+                    className="w-12 h-12 object-cover border border-gray-200"
+                  />
+                  <button 
+                    onClick={() => fileInputRef.current.click()}
+                    className="px-3 py-1 border border-gray-300 text-sm hover:bg-gray-50"
+                  >
+                    Change Photo
+                  </button>
                 </div>
-                <button className="w-full sm:w-auto px-8 py-3 bg-brand-primary text-white rounded-2xl font-bold shadow-lg hover:opacity-90 transition-all flex items-center gap-2 justify-center">
-                  <Save size={18} /> Save Changes
+
+                <InputGroup 
+                  label="Full Name" 
+                  value={profile.name} 
+                  onChange={(val) => handleProfileUpdate('name', val)}
+                  placeholder="Enter your name" 
+                />
+                <InputGroup 
+                  label="Email Address" 
+                  value={profile.email} 
+                  onChange={(val) => handleProfileUpdate('email', val)}
+                  placeholder="Enter your email" 
+                  type="email" 
+                />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <InputGroup 
+                    label="Phone Number" 
+                    value={profile.phone} 
+                    onChange={(val) => handleProfileUpdate('phone', val)}
+                    placeholder="Enter phone number" 
+                    type="tel" 
+                  />
+                  <InputGroup 
+                    label="Location" 
+                    value={profile.location} 
+                    onChange={(val) => handleProfileUpdate('location', val)}
+                    placeholder="Enter location" 
+                  />
+                </div>
+                <button 
+                  onClick={() => {/* call API to save */}}
+                  className="w-full sm:w-auto px-5 py-2 bg-[#0056D2] text-white text-sm font-medium hover:bg-[#0045b0] flex items-center gap-2 justify-center transition-colors"
+                >
+                  <Save size={14} /> Save Changes
                 </button>
               </div>
             </div>
           )}
 
           {activeTab === 'password' && (
-            <div className="animate-fadeIn max-w-2xl xl:max-w-3xl">
-              <h3 className="text-2xl lg:text-3xl font-bold text-gray-800 mb-6">Change Password</h3>
-              <div className="space-y-6">
+            <div className="max-w-2xl">
+              <h3 className="text-lg font-bold text-gray-900 mb-6">Change Password</h3>
+              <div className="space-y-5">
                 <InputGroup label="Current Password" type="password" placeholder="••••••••" />
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <InputGroup label="New Password" type="password" placeholder="Min. 8 characters" />
                   <InputGroup label="Confirm New Password" type="password" placeholder="Confirm new password" />
                 </div>
-                <button className="w-full sm:w-auto px-8 py-3 bg-brand-primary text-white rounded-2xl font-bold shadow-lg hover:opacity-90 transition-all">
+                <button className="w-full sm:w-auto px-5 py-2 bg-[#0056D2] text-white text-sm font-medium hover:bg-[#0045b0] transition-colors">
                   Update Password
                 </button>
               </div>
@@ -143,71 +214,68 @@ const ProfilePage = () => {
           )}
 
           {activeTab === 'billing' && (
-            <div className="animate-fadeIn max-w-3xl xl:max-w-4xl">
-              <h3 className="text-2xl lg:text-3xl font-bold text-gray-800 mb-2">Subscription</h3>
-              <p className="text-gray-500 mb-8">Manage your billing and plan details.</p>
+            <div className="max-w-3xl">
+              <h3 className="text-lg font-bold text-gray-900 mb-1">Subscription</h3>
+              <p className="text-xs text-gray-500 mb-6">Manage your billing and plan details.</p>
               
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                <div className="bg-brand-primary rounded-2xl md:rounded-[2rem] p-6 lg:p-8 text-white relative overflow-hidden shadow-2xl">
-                  <div className="relative z-10">
-                    <span className="text-white/80 text-xs font-black uppercase tracking-widest">Active Plan</span>
-                    <h4 className="text-2xl lg:text-3xl font-bold mt-1 mb-4">{profile.subscription}</h4>
-                    <div className="flex items-center gap-2 text-white/90 text-sm">
-                      <ShieldCheck size={16} />
-                      <span>Next billing date: {profile.expiry}</span>
-                    </div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-6">
+                <div className="border border-gray-200 p-5 bg-white">
+                  <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">Active Plan</span>
+                  <h4 className="text-xl font-bold text-gray-900 mt-1 mb-3">{profile.subscription}</h4>
+                  <div className="flex items-center gap-2 text-xs text-gray-600">
+                    <ShieldCheck size={14} />
+                    <span>Next billing: {profile.expiry}</span>
                   </div>
-                  <div className="absolute top-[-20%] right-[-10%] w-64 h-64 bg-white/10 rounded-full blur-3xl" />
                 </div>
 
-                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl md:rounded-[2rem] p-6 lg:p-8 border border-gray-200">
-                  <h4 className="font-bold text-gray-800 mb-4">Plan Features</h4>
-                  <ul className="space-y-3">
-                    <li className="flex items-center gap-2 text-sm text-gray-600">
-                      <div className="w-1.5 h-1.5 bg-brand-primary rounded-full"></div>
+                <div className="border border-gray-200 p-5 bg-gray-50">
+                  <h4 className="font-semibold text-gray-800 text-sm mb-3">Plan Features</h4>
+                  <ul className="space-y-2">
+                    <li className="flex items-center gap-2 text-xs text-gray-600">
+                      <div className="w-1.5 h-1.5 bg-[#0056D2]"></div>
                       Unlimited Projects
                     </li>
-                    <li className="flex items-center gap-2 text-sm text-gray-600">
-                      <div className="w-1.5 h-1.5 bg-brand-primary rounded-full"></div>
+                    <li className="flex items-center gap-2 text-xs text-gray-600">
+                      <div className="w-1.5 h-1.5 bg-[#0056D2]"></div>
                       Priority Support
                     </li>
-                    <li className="flex items-center gap-2 text-sm text-gray-600">
-                      <div className="w-1.5 h-1.5 bg-brand-primary rounded-full"></div>
+                    <li className="flex items-center gap-2 text-xs text-gray-600">
+                      <div className="w-1.5 h-1.5 bg-[#0056D2]"></div>
                       Advanced Analytics
                     </li>
-                    <li className="flex items-center gap-2 text-sm text-gray-600">
-                      <div className="w-1.5 h-1.5 bg-brand-primary rounded-full"></div>
+                    <li className="flex items-center gap-2 text-xs text-gray-600">
+                      <div className="w-1.5 h-1.5 bg-[#0056D2]"></div>
                       Custom Integrations
                     </li>
                   </ul>
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <div className="p-4 lg:p-6 border border-gray-100 rounded-2xl md:rounded-3xl flex items-center justify-between hover:bg-gray-50 transition-colors cursor-pointer group">
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 bg-brand-primary/10 text-brand-primary rounded-2xl group-hover:bg-brand-primary/20 transition-colors">
-                      <CreditCard size={20} />
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 border border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-[#0056D2]/10 text-[#0056D2]">
+                      <CreditCard size={16} />
                     </div>
                     <div>
-                      <p className="font-bold text-gray-800 text-sm">Update Payment Method</p>
+                      <p className="font-medium text-sm text-gray-800">Update Payment Method</p>
                       <p className="text-xs text-gray-500">Visa ending in •••• 4242</p>
                     </div>
                   </div>
-                  <ChevronRight size={18} className="text-gray-400 group-hover:text-brand-primary transition-colors" />
+                  <ChevronRight size={16} className="text-gray-400" />
                 </div>
 
-                <div className="p-4 lg:p-6 border border-gray-100 rounded-2xl md:rounded-3xl flex items-center justify-between hover:bg-gray-50 transition-colors cursor-pointer group">
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 bg-brand-primary/10 text-brand-primary rounded-2xl group-hover:bg-brand-primary/20 transition-colors">
-                      <Mail size={20} />
+                <div className="flex items-center justify-between p-3 border border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-[#0056D2]/10 text-[#0056D2]">
+                      <Mail size={16} />
                     </div>
                     <div>
-                      <p className="font-bold text-gray-800 text-sm">Billing History</p>
+                      <p className="font-medium text-sm text-gray-800">Billing History</p>
                       <p className="text-xs text-gray-500">View past invoices</p>
                     </div>
                   </div>
-                  <ChevronRight size={18} className="text-gray-400 group-hover:text-brand-primary transition-colors" />
+                  <ChevronRight size={16} className="text-gray-400" />
                 </div>
               </div>
             </div>
@@ -218,14 +286,14 @@ const ProfilePage = () => {
   );
 };
 
-// Reusable Components
+// Flat, no-rounded helper components
 const TabButton = ({ active, onClick, icon, label }) => (
   <button 
     onClick={onClick}
-    className={`flex items-center gap-3 w-full p-4 rounded-2xl font-bold text-sm transition-all ${
+    className={`flex items-center gap-2 w-full p-2 text-sm font-medium transition-colors ${
       active 
-      ? 'bg-white text-brand-primary shadow-sm' 
-      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100/50'
+      ? 'bg-gray-100 text-[#0056D2] border-l-2 border-[#0056D2]' 
+      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
     }`}
   >
     {icon}
@@ -233,14 +301,15 @@ const TabButton = ({ active, onClick, icon, label }) => (
   </button>
 );
 
-const InputGroup = ({ label, value, type = "text", placeholder }) => (
-  <div className="flex flex-col gap-2">
-    <label className="text-xs font-black text-gray-500 uppercase tracking-widest ml-1">{label}</label>
+const InputGroup = ({ label, value, onChange, type = "text", placeholder }) => (
+  <div className="flex flex-col gap-1">
+    <label className="text-xs font-medium text-gray-700">{label}</label>
     <input 
       type={type}
-      defaultValue={value}
+      value={value}
+      onChange={(e) => onChange && onChange(e.target.value)}
       placeholder={placeholder}
-      className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-gray-700 outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all"
+      className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-800 text-sm focus:outline-none focus:border-[#0056D2] focus:ring-1 focus:ring-[#0056D2] transition-all"
     />
   </div>
 );

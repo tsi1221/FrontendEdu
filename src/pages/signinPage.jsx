@@ -1,56 +1,118 @@
-import { Building2, Columns, GraduationCap, Languages, Lock, Mail, User } from 'lucide-react';
-import React from 'react';
-import { Link } from 'react-router-dom';
-
+import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Building2, Columns, GraduationCap, Lock, Mail, User, Eye, EyeOff } from 'lucide-react';
+import logo from '../../src/assets/logo.png';
 
 const SignupPage = () => {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    fullName: '',
+    school: '',
+    grade: '',
+    section: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [errors, setErrors] = useState({});
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    // Clear error for this field when user types
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    if (!formData.fullName.trim()) newErrors.fullName = 'Full name is required';
+    if (!formData.school) newErrors.school = 'Please select a school';
+    if (!formData.grade) newErrors.grade = 'Please select a grade';
+    if (!formData.section) newErrors.section = 'Please select a section';
+    if (!formData.email) newErrors.email = 'Email is required';
+    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email is invalid';
+    if (!formData.password) newErrors.password = 'Password is required';
+    else if (formData.password.length < 6) newErrors.password = 'Password must be at least 6 characters';
+    if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
+    return newErrors;
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const newErrors = validateForm();
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+    // Dummy signup – store role and redirect
+    localStorage.setItem('userRole', 'student');
+    navigate('/dashboard');
+  };
+
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 md:p-8">
-      {/* The Inset Card - Wider for multi-column layout */}
-      <div className="w-full max-w-2xl bg-white rounded-lg border border-slate-200 shadow-xl shadow-slate-200/50 p-8 md:p-10">
-        
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-slate-900">Create Account</h1>
-          <p className="text-slate-500 text-sm mt-1">Join our community and start your journey.</p>
+    <div className="min-h-screen bg-white flex items-center justify-center p-5">
+      <div className="w-full max-w-md border border-gray-200 bg-white p-6">
+        {/* Logo & Header */}
+        <div className="flex flex-col items-center mb-6">
+          <img src={logo} alt="EduTwin Logo" className="w-10 h-10 object-contain mb-3" />
+          <h1 className="text-xl font-bold text-gray-900">Create Account</h1>
+          <p className="text-xs text-gray-500 mt-1">Join our community and start learning</p>
         </div>
 
-        <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
-          
-          {/* Row 1: Full Name */}
+        <form className="space-y-4" onSubmit={handleSubmit}>
+          {/* Full Name */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5 ml-1">Full Name</label>
-            <div className="relative group">
-              <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={18} />
-              <input 
-                type="text" 
+            <label className="block text-xs font-medium text-gray-700 mb-1">Full Name</label>
+            <div className="relative">
+              <User className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+              <input
+                type="text"
+                name="fullName"
+                value={formData.fullName}
+                onChange={handleChange}
                 placeholder="John Doe"
-                className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all"
+                className="w-full pl-8 pr-3 py-2 bg-white border border-gray-300 text-gray-800 text-sm focus:outline-none focus:border-[#0056D2] focus:ring-1 focus:ring-[#0056D2]"
               />
             </div>
+            {errors.fullName && <p className="text-xs text-red-600 mt-1">{errors.fullName}</p>}
           </div>
 
-          {/* Row 2: School Selection (Full Width) */}
+          {/* School */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5 ml-1">Select School</label>
-            <div className="relative group">
-              <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={18} />
-              <select className="w-full pl-12 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all appearance-none">
+            <label className="block text-xs font-medium text-gray-700 mb-1">Select School</label>
+            <div className="relative">
+              <Building2 className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+              <select
+                name="school"
+                value={formData.school}
+                onChange={handleChange}
+                className="w-full pl-8 pr-3 py-2 bg-white border border-gray-300 text-gray-800 text-sm appearance-none focus:outline-none focus:border-[#0056D2] focus:ring-1 focus:ring-[#0056D2]"
+              >
                 <option value="">Choose your school</option>
-                <option value="high-school">North High School</option>
-                <option value="academy">Global Academy</option>
-                <option value="institute">Science Institute</option>
+                <option value="north">North High School</option>
+                <option value="global">Global Academy</option>
+                <option value="science">Science Institute</option>
               </select>
             </div>
+            {errors.school && <p className="text-xs text-red-600 mt-1">{errors.school}</p>}
           </div>
 
-          {/* Row 3: Grade & Section (Two Columns) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Grade & Section – Two columns */}
+          <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5 ml-1">Grade</label>
-              <div className="relative group">
-                <GraduationCap className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={18} />
-                <select className="w-full pl-12 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all appearance-none">
+              <label className="block text-xs font-medium text-gray-700 mb-1">Grade</label>
+              <div className="relative">
+                <GraduationCap className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <select
+                  name="grade"
+                  value={formData.grade}
+                  onChange={handleChange}
+                  className="w-full pl-8 pr-3 py-2 bg-white border border-gray-300 text-gray-800 text-sm appearance-none focus:outline-none focus:border-[#0056D2] focus:ring-1 focus:ring-[#0056D2]"
+                >
                   <option value="">Grade</option>
                   <option value="9">Grade 9</option>
                   <option value="10">Grade 10</option>
@@ -58,86 +120,106 @@ const SignupPage = () => {
                   <option value="12">Grade 12</option>
                 </select>
               </div>
+              {errors.grade && <p className="text-xs text-red-600 mt-1">{errors.grade}</p>}
             </div>
-
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5 ml-1">Section</label>
-              <div className="relative group">
-                <Columns className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={18} />
-                <select className="w-full pl-12 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all appearance-none">
+              <label className="block text-xs font-medium text-gray-700 mb-1">Section</label>
+              <div className="relative">
+                <Columns className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <select
+                  name="section"
+                  value={formData.section}
+                  onChange={handleChange}
+                  className="w-full pl-8 pr-3 py-2 bg-white border border-gray-300 text-gray-800 text-sm appearance-none focus:outline-none focus:border-[#0056D2] focus:ring-1 focus:ring-[#0056D2]"
+                >
                   <option value="">Section</option>
                   <option value="a">Section A</option>
                   <option value="b">Section B</option>
                   <option value="c">Section C</option>
                 </select>
               </div>
+              {errors.section && <p className="text-xs text-red-600 mt-1">{errors.section}</p>}
             </div>
           </div>
 
-          {/* Row 4: Language Selection (Radio Buttons) */}
+          {/* Email */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-3 ml-1 items-center gap-2">
-              <Languages size={16} /> Preferred Language
-            </label>
-            <div className="flex flex-wrap gap-4 px-1">
-              {['English', 'Spanish', 'French', 'German'].map((lang) => (
-                <label key={lang} className="flex items-center cursor-pointer group">
-                  <input type="radio" name="language" className="sr-only peer" />
-                  <div className="px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg peer-checked:bg-brand-primary peer-checked:text-white peer-checked:border-brand-primary transition-all text-sm font-medium text-slate-600 group-hover:bg-slate-100">
-                    {lang}
-                  </div>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* Row 5: Email */}
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5 ml-1">Email Address</label>
-            <div className="relative group">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={18} />
-              <input 
-                type="email" 
-                placeholder="name@company.com"
-                className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all"
+            <label className="block text-xs font-medium text-gray-700 mb-1">Email Address</label>
+            <div className="relative">
+              <Mail className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="name@example.com"
+                className="w-full pl-8 pr-3 py-2 bg-white border border-gray-300 text-gray-800 text-sm focus:outline-none focus:border-[#0056D2] focus:ring-1 focus:ring-[#0056D2]"
               />
             </div>
+            {errors.email && <p className="text-xs text-red-600 mt-1">{errors.email}</p>}
           </div>
 
-          {/* Row 6: Passwords (Two Columns) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Password fields with eye toggles */}
+          <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5 ml-1">Password</label>
-              <div className="relative group">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={18} />
-                <input 
-                  type="password" 
+              <label className="block text-xs font-medium text-gray-700 mb-1">Password</label>
+              <div className="relative">
+                <Lock className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
                   placeholder="••••••••"
-                  className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all"
+                  className="w-full pl-8 pr-8 py-2 bg-white border border-gray-300 text-gray-800 text-sm focus:outline-none focus:border-[#0056D2] focus:ring-1 focus:ring-[#0056D2]"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
               </div>
+              {errors.password && <p className="text-xs text-red-600 mt-1">{errors.password}</p>}
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5 ml-1">Confirm Password</label>
-              <div className="relative group">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={18} />
-                <input 
-                  type="password" 
+              <label className="block text-xs font-medium text-gray-700 mb-1">Confirm Password</label>
+              <div className="relative">
+                <Lock className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
                   placeholder="••••••••"
-                  className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all"
+                  className="w-full pl-8 pr-8 py-2 bg-white border border-gray-300 text-gray-800 text-sm focus:outline-none focus:border-[#0056D2] focus:ring-1 focus:ring-[#0056D2]"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
               </div>
+              {errors.confirmPassword && <p className="text-xs text-red-600 mt-1">{errors.confirmPassword}</p>}
             </div>
           </div>
 
-          {/* Submit Button */}
-          <button className="w-full py-4 bg-brand-primary hover:bg-brand-dark text-white font-bold rounded-lg shadow-lg shadow-brand-primary/20 transition-all active:scale-[0.98] mt-4">
+          <button
+            type="submit"
+            className="w-full py-2 bg-[#0056D2] text-white text-sm font-medium hover:bg-[#0045b0] transition-colors mt-2"
+          >
             Sign Up
           </button>
         </form>
 
-        <p className="text-center text-sm text-slate-500 mt-8">
-          Already have an account? <Link to="/login" className="font-semibold text-brand-primary hover:underline">Sign in</Link>
+        <p className="text-center text-xs text-gray-500 mt-6">
+          Already have an account?{' '}
+          <Link to="/login" className="font-medium text-[#0056D2] hover:underline">
+            Sign in
+          </Link>
         </p>
       </div>
     </div>

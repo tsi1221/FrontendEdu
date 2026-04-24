@@ -1,20 +1,40 @@
-import { useState } from 'react';
-import { LayoutDashboard, Settings, Menu, MessageSquare, FlaskConical, BrainCircuit, Book } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import {
+  LayoutDashboard, Settings, Menu, MessageSquare,
+  FlaskConical, BrainCircuit, Book, FileQuestion
+} from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import logo from '../../../src/assets/logo.png'; // adjust the path as needed
+import logo from '../../../src/assets/logo.png';
 
-const SidebarLayout = ({ children }) => {
+const SidebarLayout = ({ children, userRole }) => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
 
-  const navItems = [
-    { icon: <LayoutDashboard size={20} />, label: 'Dashboard', path: '/dashbored' },
-    { icon: <MessageSquare size={20} />, label: 'Chat', path: '/chat' },
-    { icon: <FlaskConical size={20} />, label: 'Virtual Labs', path: '/lab' },
-    { icon: <BrainCircuit size={20} />, label: 'Practice-hub', path: '/practicehub' },
-    { icon: <Book size={20} />, label: 'Textbook', path: '/text-book' },
-    { icon: <Settings size={20} />, label: 'Settings', path: '/settings' },
+  // Determine the effective role (prop takes precedence, then localStorage, default to 'student')
+  const effectiveRole = useMemo(() => {
+    if (userRole && ['student', 'teacher', 'admin'].includes(userRole)) {
+      return userRole;
+    }
+    const storedRole = localStorage.getItem('userRole');
+    if (storedRole && ['student', 'teacher', 'admin'].includes(storedRole)) {
+      return storedRole;
+    }
+    return 'student';
+  }, [userRole]);
+
+  // Define all possible navigation items with their allowed roles
+  const allNavItems = [
+    { icon: <LayoutDashboard size={20} />, label: 'Dashboard', path: '/dashbored', roles: ['student', 'teacher', 'admin'] },
+    { icon: <MessageSquare size={20} />, label: 'Chat', path: '/chat', roles: ['student', 'admin'] },
+    { icon: <FlaskConical size={20} />, label: 'Virtual Labs', path: '/lab', roles: ['student', 'admin'] },
+    { icon: <BrainCircuit size={20} />, label: 'Practice Hub', path: '/practicehub', roles: ['student', 'admin'] },
+    { icon: <Book size={20} />, label: 'Textbook', path: '/text-book', roles: ['student', 'admin'] },
+    { icon: <FileQuestion size={20} />, label: 'Quiz Generate', path: '/quiz-generate', roles: ['teacher', 'admin'] },
+    { icon: <Settings size={20} />, label: 'Settings', path: '/settings', roles: ['student', 'teacher', 'admin'] },
   ];
+
+  // Filter items based on the effective role
+  const navItems = allNavItems.filter(item => item.roles.includes(effectiveRole));
 
   const handleProfileClick = () => {
     setIsOpen(false);
@@ -22,36 +42,36 @@ const SidebarLayout = ({ children }) => {
   };
 
   return (
-    <div className="flex h-screen w-full bg-white overflow-hidden">
-      {/* Mobile overlay – flat, no blur */}
+    <div className="flex h-screen w-full p-4 bg-white overflow-hidden">
+      {/* Mobile overlay */}
       {isOpen && (
-        <div 
+        <div
           className="fixed inset-0 z-20 bg-black/30 lg:hidden"
           onClick={() => setIsOpen(false)}
         />
       )}
 
-      {/* Sidebar – flat, white, no rounded corners, no shadow */}
+      {/* Sidebar */}
       <aside className={`
         fixed inset-y-0 left-0 z-30 w-64 bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out
         lg:relative lg:translate-x-0
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <div className="flex flex-col h-full">
-          {/* Logo area – using logo.png */}
+          {/* Logo area */}
           <div className="px-4 py-4 border-b border-gray-200">
             <div className="flex items-center gap-2">
-              <img 
-                src={logo} 
-                alt="EduTwin Logo" 
+              <img
+                src={logo}
+                alt="EduTwin Logo"
                 className="w-6 h-6 object-contain"
               />
               <span className="font-bold text-gray-900 text-lg">EduTwin</span>
             </div>
           </div>
 
-          {/* Navigation */}
-          <nav className="flex-1 px-2 py-4 space-y-0.5">
+          {/* Navigation - increased vertical spacing */}
+          <nav className="flex-1 px-2 py-4 space-y-2">
             {navItems.map((item) => (
               <Link
                 key={item.label}
@@ -67,7 +87,7 @@ const SidebarLayout = ({ children }) => {
             ))}
           </nav>
 
-          {/* Profile section – flat */}
+          {/* Profile section */}
           <div className="border-t border-gray-200 p-3">
             <button
               onClick={handleProfileClick}
@@ -86,13 +106,13 @@ const SidebarLayout = ({ children }) => {
       </aside>
 
       {/* Main content area */}
-      <main className="flex-1 flex flex-col min-w-0 bg-white">
-        {/* Mobile header – also uses logo if desired (optional) */}
+      <main className="flex-1 flex flex-col min-w-0  px-4 bg-white">
+        {/* Mobile header */}
         <header className="lg:hidden flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white">
           <div className="flex items-center gap-2">
-            <img 
-              src={logo} 
-              alt="EduTwin Logo" 
+            <img
+              src={logo}
+              alt="EduTwin Logo"
               className="w-5 h-5 object-contain"
             />
             <span className="font-bold text-[#0056D2] text-lg">EduTwin</span>
@@ -102,7 +122,7 @@ const SidebarLayout = ({ children }) => {
           </button>
         </header>
 
-        {/* Content wrapper – no rounding, no border, no shadow */}
+        {/* Content wrapper */}
         <div className="flex-1 overflow-y-auto">
           {children}
         </div>

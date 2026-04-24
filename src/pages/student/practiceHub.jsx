@@ -105,11 +105,11 @@ const PracticeHub = () => {
             {/* Scrollable content - full width, no gaps, no spacing */}
             <main className="flex-1 overflow-y-auto">
                 {/* Generate New Set Section - full width, no margin/padding */}
-                <div className="border-b border-gray-200 bg-white">
-                    <div className="bg-[#0056D2] px-5 py-3">
-                        <div className="flex items-center gap-2 text-white">
-                            <Sparkles size={18} className="text-yellow-300" />
-                            <h2 className="text-base font-semibold">Generate New Set</h2>
+                <div className="border-b border-gray-200 -pl-2 bg-white">
+                    <div className="bg-[#0056D2] pr-10 py-3 px-4">
+                        <div className="flex items-center gap-2  text-white">
+                            <Sparkles size={18} className="text-yellow-300 " />
+                            <h2 className="text-base font-semibold ">Generate New Set</h2>
                         </div>
                         <p className="text-blue-100 text-xs mt-0.5">Create a personalized practice quiz</p>
                     </div>

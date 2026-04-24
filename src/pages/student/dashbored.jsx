@@ -153,7 +153,7 @@ const Dashboard = () => {
       </div>
 
       {/* Scrollable content */}
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto  mb-10">
         <div className="p-5 space-y-6">
           {/* Stats section */}
           <div>
@@ -166,7 +166,7 @@ const Dashboard = () => {
           </div>
 
           {/* Learning cards section */}
-          <div>
+          <div className="py-14">
             <SectionHeader title="Continue Learning" subtitle="Choose how you want to learn today" />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <LearningCard onOpenLab={() => navigate("/lab")} />
