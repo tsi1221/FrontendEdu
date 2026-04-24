@@ -9,6 +9,7 @@ import MainLayout from './Homepage/MainLayout'
 import Lab from './pages/student/lab'
 import PracticeHub from './pages/student/practiceHub'
 import TextBook from './pages/student/textbook'
+import TextbookGallery from './pages/student/textBookGallary'
 import Settings from './pages/setting'
 import Chat from './pages/student/chat'
 import Dashbored from "./pages/student/dashbored"
@@ -31,6 +32,14 @@ function App() {
           element={
             <SidebarLayout>
               <Chat />
+            </SidebarLayout>
+          }
+        />
+        <Route
+          path="/text-books"
+          element={
+            <SidebarLayout>
+              <TextbookGallery/>
             </SidebarLayout>
           }
         />

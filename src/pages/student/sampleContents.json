@@ -1,0 +1,18 @@
+[
+  {
+    "title": "The Fundamentals of Modern Physics",
+    "cover_image": "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=1000"
+  },
+  {
+    "title": "Advanced Web Architectures with React",
+    "cover_image": "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1000"
+  },
+  {
+    "title": "An Introduction to Macroeconomics",
+    "cover_image": "https://images.unsplash.com/photo-1611974715855-9c8c14b3da53?q=80&w=1000"
+  },
+  {
+    "title": "Human Biology and Anatomy",
+    "cover_image": "https://images.unsplash.com/photo-1530210124550-912dc1381cb8?q=80&w=1000"
+  }
+]

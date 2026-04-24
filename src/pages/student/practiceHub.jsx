@@ -201,7 +201,7 @@ const PracticeHub = () => {
                         FILTER QUIZZES BY SUBJECT
                     </h3>
                     <div className="flex gap-2 flex-wrap">
-                        <div className="relative flex-1 min-w-[120px]">
+                        <div className="relative flex-1 min-w-30">
                             <select
                                 value={filterSubject}
                                 onChange={(e) => setFilterSubject(e.target.value)}
@@ -212,7 +212,7 @@ const PracticeHub = () => {
                             </select>
                             <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                         </div>
-                        <div className="relative flex-1 min-w-[120px]">
+                        <div className="relative flex-1 min-w-30">
                             <select
                                 value={filterSort}
                                 onChange={(e) => setFilterSort(e.target.value)}
