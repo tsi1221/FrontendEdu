@@ -65,7 +65,7 @@ const TextbookGallery = () => {
                     {filteredBooks.map((book) => (
                         <div 
                             key={book._id}
-                            onClick={() => navigate(`/textbook/${book._id}`)}
+                            onClick={() => navigate(`/text-book/${book._id}`)}
                             className="group relative aspect-16/10 overflow-hidden bg-slate-200 cursor-pointer border border-gray-200 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
                         >
                             {/* Background Image */}
