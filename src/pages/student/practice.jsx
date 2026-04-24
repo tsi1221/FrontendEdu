@@ -215,7 +215,7 @@ const Practice = () => {
   return (
     <div className="h-screen flex flex-col bg-white">
       {/* Header */}
-      <div className="border-b border-gray-200 bg-white flex-shrink-0">
+      <div className="border-b border-gray-200 bg-white shrink-0">
         <div className="px-4 py-3 flex items-center justify-between">
           <button onClick={handleGoHome} className="flex items-center gap-1 text-gray-600 hover:text-[#0056D2]">
             <ArrowLeft size={18} />
@@ -360,9 +360,9 @@ const Practice = () => {
                       )}
                     </div>
                     {q.isCorrect ? (
-                      <CheckCircle size={18} className="text-green-600 flex-shrink-0" />
+                      <CheckCircle size={18} className="text-green-600 shrink-0" />
                     ) : (
-                      <XCircle size={18} className="text-red-500 flex-shrink-0" />
+                      <XCircle size={18} className="text-red-500 shrink-0" />
                     )}
                   </div>
                 </div>
