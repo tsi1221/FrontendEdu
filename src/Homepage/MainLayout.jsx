@@ -7,7 +7,7 @@ import { Navbar } from "../componenet/sections/Navbar"; // ← Add this import
 import { Hero } from "../componenet/sections/Hero";
 import { Stats } from "../componenet/sections/Stats";
 import { Features } from "../componenet/sections/Features";
-import { Testimonials } from "../componenet/sections/Testimonials";
+import Testimonials  from "../componenet/sections/Testimonials";
 import { Team } from "../componenet/sections/Team";
 import { CTA } from "../componenet/sections/CTA";
 import { Footer } from "../componenet/sections/Footer";
