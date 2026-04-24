@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { LayoutDashboard, Settings, Users, FolderRoot, Menu, X,MessageSquare,FlaskConical, BrainCircuit,Book } from 'lucide-react';
+import { useState } from 'react';
+import { LayoutDashboard, Settings, Menu, MessageSquare,FlaskConical, BrainCircuit,Book } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const SidebarLayout = ({ children }) => {
