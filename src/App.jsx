@@ -21,6 +21,9 @@ import Quiz from './pages/teacher/quiz';
 import GeneratedQuizzes from './pages/teacher/generatedQueze'; // adjust path as needed
 
 import { QuizProvider } from './pages/teacher/QuizContext'; // import the context provider
+import SubscriptionStats from './pages/admin/subscription';
+import AddSchool from './pages/admin/schoolStats';
+import SchoolStats from './pages/admin/schoolStats';
 
 function App() {
   return (
@@ -128,6 +131,22 @@ function App() {
             element={
               <SidebarLayout>
                 <GeneratedQuizzes />
+              </SidebarLayout>
+            }
+          />
+          <Route
+            path="/subscription-stats"
+            element={
+              <SidebarLayout>
+                <SubscriptionStats />
+              </SidebarLayout>
+            }
+          />
+          <Route
+            path="/add-school"
+            element={
+              <SidebarLayout>
+                <SchoolStats/>
               </SidebarLayout>
             }
           />
