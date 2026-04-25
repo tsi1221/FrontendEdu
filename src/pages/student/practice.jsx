@@ -1,6 +1,5 @@
-// practice.jsx
-import { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useContext, useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
   CheckCircle,
@@ -8,18 +7,158 @@ import {
   ChevronRight,
   Home,
   RotateCcw,
-  AlertCircle
-} from 'lucide-react';
+  AlertCircle,
+} from "lucide-react";
+import { generatePracticeQuiz, submitPracticeQuiz } from "../../services/api";
+import { LanguageContext } from "../../context/LanguageContext";
+
+const PRACTICE_TEXT = {
+  en: {
+    fallbackError: "Using fallback questions (backend unreachable).",
+    scoreLocalError:
+      "The quiz was scored locally because backend submission failed.",
+    generating: "Generating your AI-powered practice set...",
+    wait: "This may take a few seconds",
+    failedLoad: "Failed to load questions",
+    backToHub: "Back to Hub",
+    noQuestions: "No questions available. Please go back and try again.",
+    back: "Back",
+    general: "General",
+    question: "Question",
+    of: "of",
+    answerPlaceholder: "Type your answer here...",
+    previous: "Previous",
+  },
+  om: {
+    fallbackError: "Gaaffileen bakka buusaa fayyadamu (backend hin argamne).",
+    scoreLocalError:
+      "Qormaanni keessaa madaalame; ergaan backend hin milkoofne.",
+    generating: "Qormaata shaakalaa AI kee fe'amaa jira...",
+    wait: "Kun sekondii muraasa fudhachuu danda’a",
+    failedLoad: "Gaaffilee fe'uun hin milkoofne",
+    backToHub: "Gara Hub deebi’i",
+    noQuestions: "Gaaffiin hin jiru. Deebi’iitii irra deebi’i yaali.",
+    back: "Duubatti",
+    general: "Waliigalaa",
+    question: "Gaaffii",
+    of: "kan",
+    answerPlaceholder: "Deebii kee asitti barreessi...",
+    previous: "Kan Dura",
+  },
+};
+
+const normalizeQuestionTypes = (questionType) => {
+  const types = String(questionType || "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .map((item) => {
+      const normalized = item.toLowerCase();
+      if (normalized.includes("true")) return "true_false";
+      if (normalized.includes("short")) return "short";
+      return "mcq";
+    });
+
+  return types.length > 0 ? types : ["mcq"];
+};
+
+const humanizeQuestionType = (questionType) => {
+  const normalized = String(questionType || "").toUpperCase();
+  if (normalized === "TRUE_FALSE") return "True/False";
+  if (normalized === "SHORT_ANSWER") return "Short Answer";
+  return "MCQ";
+};
+
+const toPracticeQuestion = (question, index) => ({
+  id: question._id || question.id || index + 1,
+  backendId: question._id || question.id || null,
+  type: humanizeQuestionType(question.question_type || question.type),
+  text: question.question_text || question.question || "",
+  options: Array.isArray(question.options) ? question.options : [],
+  correctAnswer: question.correct_answer || question.answer || "",
+  userAnswer: null,
+  isCorrect: false,
+});
+
+const generateMockQuestions = ({
+  subject,
+  questionType,
+  topic,
+  numQuestions,
+}) => {
+  const questions = [];
+  const availableTypes = String(questionType || "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+  const types = availableTypes.length > 0 ? availableTypes : ["MCQ"];
+  const subjectLower = String(subject || "").toLowerCase();
+  const topicText = topic && topic !== "General" ? topic : subject;
+
+  for (let index = 1; index <= numQuestions; index += 1) {
+    const qType = types[(index - 1) % types.length];
+    let questionText = "";
+    let options = [];
+    let correctAnswer = "";
+
+    if (qType === "MCQ") {
+      if (subjectLower === "biology") {
+        questionText = `${topicText} MCQ ${index}: What is the primary function of mitochondria?`;
+        options = [
+          "Energy production",
+          "Protein synthesis",
+          "Waste disposal",
+          "Cell division",
+        ];
+        correctAnswer = "Energy production";
+      } else if (subjectLower === "physics") {
+        questionText = `${topicText} MCQ ${index}: Newton's second law states that force equals mass times ___.`;
+        options = ["Velocity", "Acceleration", "Momentum", "Inertia"];
+        correctAnswer = "Acceleration";
+      } else if (subjectLower === "chemistry") {
+        questionText = `${topicText} MCQ ${index}: What is the pH of a neutral solution?`;
+        options = ["0", "7", "14", "1"];
+        correctAnswer = "7";
+      } else {
+        questionText = `${topicText} MCQ ${index}: Which of the following is correct?`;
+        options = ["Option A", "Option B", "Option C", "Option D"];
+        correctAnswer = "Option A";
+      }
+    } else if (qType === "True/False") {
+      questionText = `${topicText} Statement ${index}: The concept is fundamental to ${subject}.`;
+      options = ["True", "False"];
+      correctAnswer = "True";
+    } else {
+      questionText = `${topicText} Short Answer ${index}: Explain the main idea in your own words.`;
+      correctAnswer = "Full explanation evaluated by AI.";
+    }
+
+    questions.push({
+      id: index,
+      type: qType,
+      text: questionText,
+      options,
+      correctAnswer,
+      userAnswer: null,
+      isCorrect: false,
+    });
+  }
+
+  return questions;
+};
 
 const Practice = () => {
+  const languageContext = useContext(LanguageContext);
+  const language = languageContext?.language || "om";
+  const text = PRACTICE_TEXT[language] || PRACTICE_TEXT.en;
   const location = useLocation();
   const navigate = useNavigate();
   const { subject, questionType, topic, numQuestions } = location.state || {};
 
-  // Redirect if essential data is missing
   useEffect(() => {
     if (!subject || !questionType || !numQuestions) {
-      navigate('/practicehub');
+      navigate("/practicehub");
     }
   }, [subject, questionType, numQuestions, navigate]);
 
@@ -30,106 +169,70 @@ const Practice = () => {
   const [score, setScore] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [quizId, setQuizId] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
 
-  // Generate questions by calling the AI backend
   useEffect(() => {
     if (!subject || !numQuestions) return;
 
-    const generateFromAI = async () => {
+    let cancelled = false;
+
+    const loadQuestions = async () => {
+      setLoading(true);
+      setError(null);
+
       try {
-        // Replace with your actual AI backend endpoint
-        const response = await fetch('/api/generate-questions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            subject,
-            questionType,
-            topic: topic || 'General',
-            numQuestions
-          })
+        const response = await generatePracticeQuiz({
+          subject,
+          topic: topic || "General",
+          num_questions: numQuestions,
+          types: normalizeQuestionTypes(questionType),
         });
 
-        if (!response.ok) throw new Error('Failed to generate questions');
+        const generatedQuiz = response?.data?.quiz || null;
+        const generatedQuestions = Array.isArray(response?.data?.questions)
+          ? response.data.questions
+          : [];
 
-        const data = await response.json();
-        // Expected data format: { questions: [{ id, type, text, options, correctAnswer }] }
-        setQuestions(data.questions);
-      } catch (err) {
-        console.error('AI generation failed, using fallback mock:', err);
-        setError('Using fallback questions (backend unreachable).');
-        // Fallback to mock generator (for development/demo)
-        setQuestions(generateMockQuestions());
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    // Mock generator (only used when backend fails or during development)
-    const generateMockQuestions = () => {
-      const mockQuestions = [];
-      const typeList = questionType.split(',').map(t => t.trim());
-      const availableTypes = typeList.length ? typeList : ['MCQ'];
-
-      for (let i = 1; i <= numQuestions; i++) {
-        const qType = availableTypes[(i - 1) % availableTypes.length];
-        let questionText = '';
-        let options = [];
-        let correctAnswer = '';
-
-        const subjectLower = subject.toLowerCase();
-        const topicText = topic && topic !== 'General' ? topic : subject;
-
-        if (qType === 'MCQ') {
-          if (subjectLower === 'biology') {
-            questionText = `${topicText} MCQ ${i}: What is the primary function of mitochondria?`;
-            options = ['Energy production', 'Protein synthesis', 'Waste disposal', 'Cell division'];
-            correctAnswer = 'Energy production';
-          } else if (subjectLower === 'physics') {
-            questionText = `${topicText} MCQ ${i}: Newton's second law states that force equals mass times ___.`;
-            options = ['Velocity', 'Acceleration', 'Momentum', 'Inertia'];
-            correctAnswer = 'Acceleration';
-          } else if (subjectLower === 'chemistry') {
-            questionText = `${topicText} MCQ ${i}: What is the pH of a neutral solution?`;
-            options = ['0', '7', '14', '1'];
-            correctAnswer = '7';
-          } else {
-            questionText = `${topicText} MCQ ${i}: Which of the following is correct?`;
-            options = ['Option A', 'Option B', 'Option C', 'Option D'];
-            correctAnswer = 'Option A';
-          }
-        } else if (qType === 'True/False') {
-          questionText = `${topicText} Statement ${i}: The concept is fundamental to ${subject}.`;
-          options = ['True', 'False'];
-          correctAnswer = 'True';
-        } else {
-          questionText = `${topicText} Short Answer ${i}: Explain the main idea in your own words.`;
-          options = [];
-          correctAnswer = 'Full explanation evaluated by AI.';
+        if (!generatedQuestions.length) {
+          throw new Error("The backend did not return any questions.");
         }
 
-        mockQuestions.push({
-          id: i,
-          type: qType,
-          text: questionText,
-          options,
-          correctAnswer,
-          userAnswer: null,
-          isCorrect: false
-        });
+        if (cancelled) return;
+
+        setQuizId(generatedQuiz?._id || null);
+        setQuestions(generatedQuestions.map(toPracticeQuestion));
+      } catch (_error) {
+        if (cancelled) return;
+
+        setError(text.fallbackError);
+        setQuizId(null);
+        setQuestions(
+          generateMockQuestions({ subject, questionType, topic, numQuestions }),
+        );
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
-      return mockQuestions;
     };
 
-    // Call the AI generator
-    generateFromAI();
-  }, [subject, topic, numQuestions, questionType]);
+    loadQuestions();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [subject, topic, numQuestions, questionType, text.fallbackError]);
 
   const handleAnswer = (answer) => {
     if (submitted) return;
-    setAnswers(prev => ({ ...prev, [currentIndex]: answer }));
-    setQuestions(prev => prev.map((q, idx) =>
-      idx === currentIndex ? { ...q, userAnswer: answer } : q
-    ));
+
+    setAnswers((prev) => ({ ...prev, [currentIndex]: answer }));
+    setQuestions((prev) =>
+      prev.map((question, index) =>
+        index === currentIndex ? { ...question, userAnswer: answer } : question,
+      ),
+    );
   };
 
   const handleNext = () => {
@@ -144,22 +247,53 @@ const Practice = () => {
     }
   };
 
-  const handleSubmit = () => {
-    let correctCount = 0;
-    const updated = questions.map(q => {
+  const handleSubmit = async () => {
+    const updatedQuestions = questions.map((question) => {
       let isCorrect = false;
-      if (q.type === 'MCQ' || q.type === 'True/False') {
-        isCorrect = q.userAnswer === q.correctAnswer;
+
+      if (question.type === "MCQ" || question.type === "True/False") {
+        isCorrect = question.userAnswer === question.correctAnswer;
       } else {
-        // Short answer: any non‑empty answer is considered correct for demo
-        isCorrect = q.userAnswer && q.userAnswer.trim().length > 0;
+        isCorrect =
+          !!question.userAnswer && question.userAnswer.trim().length > 0;
       }
-      if (isCorrect) correctCount++;
-      return { ...q, isCorrect };
+
+      return { ...question, isCorrect };
     });
-    setQuestions(updated);
+
+    const correctCount = updatedQuestions.filter(
+      (question) => question.isCorrect,
+    ).length;
+    setQuestions(updatedQuestions);
     setScore(correctCount);
     setSubmitted(true);
+
+    if (!quizId) return;
+
+    const backendAnswers = updatedQuestions
+      .filter((question) => question.backendId)
+      .map((question) => ({
+        question_id: question.backendId,
+        provided_answer: question.userAnswer || "",
+      }));
+
+    if (backendAnswers.length === 0) return;
+
+    setSubmitting(true);
+    try {
+      const response = await submitPracticeQuiz({
+        quiz_id: quizId,
+        answers: backendAnswers,
+      });
+
+      if (typeof response?.data?.correct_answers === "number") {
+        setScore(response.data.correct_answers);
+      }
+    } catch (err) {
+      setError(err.message || text.scoreLocalError);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleRestart = () => {
@@ -167,18 +301,24 @@ const Practice = () => {
     setAnswers({});
     setSubmitted(false);
     setScore(null);
-    setQuestions(prev => prev.map(q => ({ ...q, userAnswer: null, isCorrect: false })));
+    setQuestions((prev) =>
+      prev.map((question) => ({
+        ...question,
+        userAnswer: null,
+        isCorrect: false,
+      })),
+    );
   };
 
   const handleGoHome = () => {
-    navigate('/practicehub');
+    navigate("/practicehub");
   };
 
   if (loading) {
     return (
       <div className="h-screen flex flex-col items-center justify-center bg-white">
-        <div className="text-[#0056D2] text-lg mb-2">Generating your AI‑powered practice set...</div>
-        <div className="text-xs text-gray-400">This may take a few seconds</div>
+        <div className="text-[#0056D2] text-lg mb-2">{text.generating}</div>
+        <div className="text-xs text-gray-400">{text.wait}</div>
       </div>
     );
   }
@@ -188,13 +328,13 @@ const Practice = () => {
       <div className="h-screen flex flex-col items-center justify-center bg-white p-5">
         <div className="border border-red-300 bg-red-50 p-5 text-center max-w-md">
           <AlertCircle size={32} className="text-red-500 mx-auto mb-3" />
-          <p className="text-red-700 font-medium">Failed to load questions</p>
+          <p className="text-red-700 font-medium">{text.failedLoad}</p>
           <p className="text-red-600 text-sm mt-1">{error}</p>
           <button
             onClick={handleGoHome}
             className="mt-4 px-4 py-2 bg-[#0056D2] text-white hover:bg-[#0045b0]"
           >
-            Back to Hub
+            {text.backToHub}
           </button>
         </div>
       </div>
@@ -204,87 +344,94 @@ const Practice = () => {
   if (!questions.length) {
     return (
       <div className="h-screen flex items-center justify-center bg-white">
-        <div className="text-red-600 text-lg">No questions available. Please go back and try again.</div>
+        <div className="text-red-600 text-lg">{text.noQuestions}</div>
       </div>
     );
   }
 
-  const currentQ = questions[currentIndex];
+  const currentQuestion = questions[currentIndex];
   const isLast = currentIndex === questions.length - 1;
 
   return (
     <div className="h-screen flex flex-col bg-white">
-      {/* Header */}
       <div className="border-b border-gray-200 bg-white shrink-0">
         <div className="px-4 py-3 flex items-center justify-between">
-          <button onClick={handleGoHome} className="flex items-center gap-1 text-gray-600 hover:text-[#0056D2]">
+          <button
+            onClick={handleGoHome}
+            className="flex items-center gap-1 text-gray-600 hover:text-[#0056D2]"
+          >
             <ArrowLeft size={18} />
-            <span className="text-sm">Back</span>
+            <span className="text-sm">{text.back}</span>
           </button>
           <div className="text-center">
-            <h1 className="text-base font-bold text-gray-900">{subject} Practice</h1>
-            <p className="text-xs text-gray-500">{topic || 'General'}</p>
+            <h1 className="text-base font-bold text-gray-900">
+              {subject} Practice
+            </h1>
+            <p className="text-xs text-gray-500">{topic || text.general}</p>
           </div>
-          <div className="w-16"></div>
+          <div className="w-16" />
         </div>
       </div>
 
-      {/* Scrollable content */}
       <main className="flex-1 overflow-y-auto">
         {!submitted ? (
           <div className="p-5">
-            {/* Question card */}
             <div className="border border-gray-200 bg-white">
               <div className="bg-[#0056D2] px-5 py-2 flex justify-between items-center">
                 <span className="text-white text-sm font-medium">
-                  Question {currentIndex + 1} of {questions.length}
+                  {text.question} {currentIndex + 1} {text.of}{" "}
+                  {questions.length}
                 </span>
-                <span className="text-white text-xs bg-white/20 px-2 py-0.5">{currentQ.type}</span>
+                <span className="text-white text-xs bg-white/20 px-2 py-0.5">
+                  {currentQuestion.type}
+                </span>
               </div>
               <div className="p-5">
-                <p className="text-gray-800 text-base mb-6">{currentQ.text}</p>
+                <p className="text-gray-800 text-base mb-6">
+                  {currentQuestion.text}
+                </p>
 
-                {currentQ.options.length > 0 ? (
+                {currentQuestion.options.length > 0 ? (
                   <div className="space-y-2">
-                    {currentQ.options.map((opt, idx) => (
+                    {currentQuestion.options.map((option, optionIndex) => (
                       <button
-                        key={`${currentQ.id}-${idx}`}
-                        onClick={() => handleAnswer(opt)}
+                        key={`${currentQuestion.id}-${optionIndex}`}
+                        onClick={() => handleAnswer(option)}
                         className={`w-full text-left p-3 border ${
-                          answers[currentIndex] === opt
-                            ? 'border-[#0056D2] bg-[#0056D2]/10'
-                            : 'border-gray-200 hover:bg-gray-50'
+                          answers[currentIndex] === option
+                            ? "border-[#0056D2] bg-[#0056D2]/10"
+                            : "border-gray-200 hover:bg-gray-50"
                         } transition-colors`}
                       >
-                        <span className="text-sm">{opt}</span>
+                        <span className="text-sm">{option}</span>
                       </button>
                     ))}
                   </div>
                 ) : (
                   <textarea
                     rows={4}
-                    placeholder="Type your answer here..."
-                    value={answers[currentIndex] || ''}
-                    onChange={(e) => handleAnswer(e.target.value)}
+                    placeholder={text.answerPlaceholder}
+                    value={answers[currentIndex] || ""}
+                    onChange={(event) => handleAnswer(event.target.value)}
                     className="w-full p-3 border border-gray-200 focus:border-[#0056D2] focus:outline-none text-sm"
                   />
                 )}
               </div>
             </div>
 
-            {/* Navigation buttons */}
             <div className="flex justify-between mt-5">
               <button
                 onClick={handlePrev}
                 disabled={currentIndex === 0}
                 className={`px-4 py-2 border text-sm font-medium ${
                   currentIndex === 0
-                    ? 'border-gray-200 text-gray-400 cursor-not-allowed'
-                    : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                    ? "border-gray-200 text-gray-400 cursor-not-allowed"
+                    : "border-gray-300 text-gray-700 hover:bg-gray-50"
                 }`}
               >
-                Previous
+                {text.previous}
               </button>
+
               {!isLast ? (
                 <button
                   onClick={handleNext}
@@ -295,20 +442,19 @@ const Practice = () => {
               ) : (
                 <button
                   onClick={handleSubmit}
-                  disabled={!answers[currentIndex]}
+                  disabled={!answers[currentIndex] || submitting}
                   className={`px-4 py-2 text-sm font-medium ${
-                    answers[currentIndex]
-                      ? 'bg-[#0056D2] text-white hover:bg-[#0045b0]'
-                      : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                    answers[currentIndex] && !submitting
+                      ? "bg-[#0056D2] text-white hover:bg-[#0045b0]"
+                      : "bg-gray-200 text-gray-500 cursor-not-allowed"
                   }`}
                 >
-                  Submit All
+                  {submitting ? "Submitting..." : "Submit All"}
                 </button>
               )}
             </div>
           </div>
         ) : (
-          // Results view (unchanged)
           <div className="p-5">
             <div className="border border-gray-200 bg-white text-center p-8">
               <div className="text-5xl font-bold text-[#0056D2] mb-3">
@@ -316,10 +462,10 @@ const Practice = () => {
               </div>
               <p className="text-gray-600 mb-6">
                 {score === questions.length
-                  ? 'Perfect! Excellent work.'
+                  ? "Perfect! Excellent work."
                   : score >= questions.length / 2
-                  ? 'Good job! Keep practicing.'
-                  : 'Review the material and try again.'}
+                    ? "Good job! Keep practicing."
+                    : "Review the material and try again."}
               </p>
               <div className="flex flex-wrap gap-3 justify-center">
                 <button
@@ -338,29 +484,42 @@ const Practice = () => {
             </div>
 
             <div className="mt-5 space-y-3">
-              <h3 className="text-sm font-semibold text-gray-800">Review your answers</h3>
-              {questions.map((q, idx) => (
-                <div key={q.id} className="border border-gray-200 p-4">
+              <h3 className="text-sm font-semibold text-gray-800">
+                Review your answers
+              </h3>
+              {questions.map((question, index) => (
+                <div key={question.id} className="border border-gray-200 p-4">
                   <div className="flex justify-between items-start gap-2">
                     <div className="flex-1">
                       <p className="text-xs text-gray-500 mb-1">
-                        Q{idx + 1} · {q.type}
+                        Q{index + 1} · {question.type}
                       </p>
-                      <p className="text-sm text-gray-800">{q.text}</p>
+                      <p className="text-sm text-gray-800">{question.text}</p>
                       <p className="text-xs mt-2">
-                        <span className="font-medium">Your answer:</span>{' '}
-                        <span className={q.isCorrect ? 'text-green-700' : 'text-red-600'}>
-                          {q.userAnswer || '(not answered)'}
+                        <span className="font-medium">Your answer:</span>{" "}
+                        <span
+                          className={
+                            question.isCorrect
+                              ? "text-green-700"
+                              : "text-red-600"
+                          }
+                        >
+                          {question.userAnswer || "(not answered)"}
                         </span>
                       </p>
-                      {!q.isCorrect && q.type !== 'Short Answer' && (
-                        <p className="text-xs text-gray-600 mt-1">
-                          <span className="font-medium">Correct:</span> {q.correctAnswer}
-                        </p>
-                      )}
+                      {!question.isCorrect &&
+                        question.type !== "Short Answer" && (
+                          <p className="text-xs text-gray-600 mt-1">
+                            <span className="font-medium">Correct:</span>{" "}
+                            {question.correctAnswer}
+                          </p>
+                        )}
                     </div>
-                    {q.isCorrect ? (
-                      <CheckCircle size={18} className="text-green-600 shrink-0" />
+                    {question.isCorrect ? (
+                      <CheckCircle
+                        size={18}
+                        className="text-green-600 shrink-0"
+                      />
                     ) : (
                       <XCircle size={18} className="text-red-500 shrink-0" />
                     )}

@@ -1,19 +1,18 @@
 import React, { Suspense, useState, useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 
-import { LanguageProvider } from "../context/LanguageContext";
 import { Navbar } from "../componenet/sections/Navbar"; // ← Add this import
 
 import { Hero } from "../componenet/sections/Hero";
 import { Stats } from "../componenet/sections/Stats";
 import { Features } from "../componenet/sections/Features";
-import Testimonials  from "../componenet/sections/Testimonials";
+import Testimonials from "../componenet/sections/Testimonials";
 import { Team } from "../componenet/sections/Team";
 import { CTA } from "../componenet/sections/CTA";
 import { Footer } from "../componenet/sections/Footer";
 
 const ThreeBackground = React.lazy(
-  () => import("../componenet/ThreeBackground")
+  () => import("../componenet/ThreeBackground"),
 );
 
 const MainLayoutContent = () => {
@@ -52,7 +51,7 @@ const MainLayoutContent = () => {
           <Stats />
           <Features />
           <Testimonials />
-          <Team/>
+          <Team />
           <CTA />
           <Footer />
         </>
@@ -63,10 +62,6 @@ const MainLayoutContent = () => {
   );
 };
 
-const MainLayout = () => (
-  <LanguageProvider>
-    <MainLayoutContent />
-  </LanguageProvider>
-);
+const MainLayout = () => <MainLayoutContent />;
 
 export default MainLayout;

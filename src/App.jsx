@@ -24,6 +24,7 @@ import { QuizProvider } from './pages/teacher/QuizContext'; // import the contex
 import SubscriptionStats from './pages/admin/subscription';
 import SchoolStats from './pages/admin/schoolStats';
 import SystemHealth from './pages/admin/systemHealth';
+import AdminGeneratedQuizzes from './pages/admin/generatedQuizzes';
 
 function App() {
   return (
@@ -139,6 +140,14 @@ function App() {
             element={
               <SidebarLayout>
                 <SubscriptionStats />
+              </SidebarLayout>
+            }
+          />
+          <Route
+            path="/admin-generated-quizzes"
+            element={
+              <SidebarLayout>
+                <AdminGeneratedQuizzes />
               </SidebarLayout>
             }
           />

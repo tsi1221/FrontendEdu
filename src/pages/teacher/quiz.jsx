@@ -23,7 +23,7 @@ import {
   HistoryOutlined, // icon for "Previous Quizzes"
 } from '@ant-design/icons';
 import { allStudents } from './mockStudents';
-import { useQuizContext } from './QuizContext';
+import { createQuiz } from '../../services/api';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -44,9 +44,9 @@ const createEmptyQuestion = (type = 'mcq') => ({
 });
 
 const Quiz = () => {
-  const { addQuiz } = useQuizContext();
   const [form] = Form.useForm();
   const [questions, setQuestions] = useState([]);
+  const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
 
   const grades = [...new Set(allStudents.map((s) => s.grade))];
@@ -95,7 +95,7 @@ const Quiz = () => {
     );
   };
 
-  const handleSubmit = (values) => {
+  const handleSubmit = async (values) => {
     if (questions.length === 0) {
       message.error('Add at least one question.');
       return;
@@ -113,36 +113,60 @@ const Quiz = () => {
       return;
     }
 
-    const quizData = {
-      ...values,
-      questions: questions.map((q) => ({
-        type: q.type,
-        text: q.text,
-        options: q.type !== 'short' ? q.options : undefined,
-        correctOption: q.correctOption,
-      })),
-      postedAt: new Date().toISOString(),
+    const payload = {
+      subject: values.subject,
+      grade: values.grade,
+      creator_type: 'TEACHER',
+      title: values.quizTitle,
+      status: 'DRAFT',
+      questions: questions.map((q, index) => {
+        const correctAnswer =
+          q.type === 'mcq'
+            ? q.options[q.correctOption] || ''
+            : q.type === 'truefalse'
+              ? String(q.correctOption === 0 ? 'TRUE' : 'FALSE')
+              : String(q.correctOption || '').trim();
+
+        return {
+          question_type: q.type === 'mcq' ? 'MCQ' : q.type === 'truefalse' ? 'TRUE_FALSE' : 'SHORT_ANSWER',
+          question_text: q.text,
+          options: q.type === 'short' ? undefined : q.options,
+          correct_answer: correctAnswer,
+          explanation: q.explanation?.trim() || `Review the concept for question ${index + 1}.`,
+          points: 1,
+          order_index: index + 1,
+        };
+      }),
     };
 
-    addQuiz(quizData);
-    message.success('Quiz posted!');
-    form.resetFields();
-    setQuestions([]);
+    try {
+      setSubmitting(true);
+      await createQuiz(payload);
+      message.success('Quiz posted to backend!');
+      form.resetFields();
+      setQuestions([]);
+      navigate('/generated-quizzes');
+    } catch (error) {
+      message.error(error.message || 'Unable to post quiz right now.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
-    <div className="p-6 space-y-6 max-h-screen overflow-y-auto">
+    <div className="teacher-page p-6 space-y-6 max-h-screen overflow-y-auto bg-white dark:bg-transparent text-gray-900">
       {/* Header with Title and Previous Quizzes button */}
       <div className="flex justify-between items-center mb-2">
         <div>
-          <Title level={3} className="text-gray-800! mb-1!">
+          <Title level={3} className="mb-1! text-gray-900 dark:text-gray-100">
             Create Quiz
           </Title>
-          <Text type="secondary">
+          <Text type="secondary" className="dark:text-gray-100">
             Choose grade and subject, then add questions by type.
           </Text>
         </div>
         <Button
+          className="teacher-action-button"
           icon={<HistoryOutlined />}
           onClick={() => navigate('/generated-quizzes')}
         >
@@ -150,7 +174,7 @@ const Quiz = () => {
         </Button>
       </div>
 
-      <Card bordered={false} className="shadow-sm">
+      <Card bordered={false} className="shadow-sm dark:bg-slate-800 dark:border-slate-700">
         <Form form={form} layout="vertical" onFinish={handleSubmit}>
           <Row gutter={[24, 0]}>
             <Col xs={24} sm={8}>
@@ -168,7 +192,7 @@ const Quiz = () => {
                 name="grade"
                 rules={[{ required: true, message: 'Select a grade' }]}
               >
-                <Select placeholder="Choose a grade" allowClear>
+                <Select placeholder="Choose a grade" allowClear dropdownClassName="teacher-page" className="teacher-control-select">
                   {grades.map((g) => (
                     <Option key={g} value={g}>Grade {g}</Option>
                   ))}
@@ -181,7 +205,7 @@ const Quiz = () => {
                 name="subject"
                 rules={[{ required: true, message: 'Select a subject' }]}
               >
-                <Select placeholder="Choose a subject" allowClear>
+                <Select placeholder="Choose a subject" allowClear dropdownClassName="teacher-page" className="teacher-control-select">
                   {SUBJECTS.map((s) => (
                     <Option key={s} value={s}>{s}</Option>
                   ))}
@@ -198,14 +222,14 @@ const Quiz = () => {
 
           <div className="mb-4">
             <Space className="mb-3" style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Title level={5} className="mb-0!">Questions</Title>
-              <Button type="dashed" icon={<PlusOutlined />} onClick={addQuestion}>
+              <Title level={5} className="mb-0! dark:text-gray-100">Questions</Title>
+              <Button type="dashed" icon={<PlusOutlined />} onClick={addQuestion} className="teacher-action-button">
                 Add Question
               </Button>
             </Space>
 
             {questions.length === 0 && (
-              <Text type="secondary">No questions yet. Click the button above.</Text>
+              <Text type="secondary" className="dark:text-gray-100">No questions yet. Click the button above.</Text>
             )}
 
             <div className="max-h-100 overflow-y-auto pr-2 space-y-3">
@@ -213,7 +237,7 @@ const Quiz = () => {
                 <Card
                   key={q.id}
                   size="small"
-                  className="bg-gray-50"
+                  className="bg-gray-50 dark:bg-slate-900/40 dark:border-slate-700"
                   title={`Question ${idx + 1}`}
                   extra={
                     <Button
@@ -227,9 +251,11 @@ const Quiz = () => {
                   <Row gutter={12}>
                     <Col span={12}>
                       <Form.Item label="Question Type">
-                        <Select
+                          <Select
                           value={q.type}
                           onChange={(val) => updateQuestion(q.id, 'type', val)}
+                          dropdownClassName="teacher-page"
+                          className="teacher-control-select"
                         >
                           {QUESTION_TYPES.map((t) => (
                             <Option key={t.value} value={t.value}>{t.label}</Option>
@@ -301,7 +327,7 @@ const Quiz = () => {
           </div>
 
           <Form.Item>
-            <Button type="primary" htmlType="submit" icon={<FormOutlined />}>
+            <Button type="primary" htmlType="submit" icon={<FormOutlined />} loading={submitting} className="teacher-action-button">
               Post Quiz
             </Button>
           </Form.Item>
