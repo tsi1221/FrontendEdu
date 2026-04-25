@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
   Card,
   Row,
@@ -17,6 +17,8 @@ import {
   BookOutlined,
   ReadOutlined,
   EyeOutlined,
+  CheckCircleFilled,
+  CloseCircleFilled,
 } from '@ant-design/icons';
 import { allStudents } from './mockStudents';
 
@@ -26,20 +28,28 @@ const { Option } = Select;
 const SubscriptionStats = () => {
   const [filterGrade, setFilterGrade] = useState(null);
   const [filterSection, setFilterSection] = useState(null);
-
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const grades = [...new Set(allStudents.map(s => s.grade))];
-  const sections = [...new Set(allStudents.map(s => s.section))];
+  // Mock 'paid' field if not present (replace with real data)
+  const allStudentsData = useMemo(() => {
+    return allStudents.map((student, index) => ({
+      ...student,
+      paid: Object.prototype.hasOwnProperty.call(student, 'paid')
+        ? student.paid
+        : index % 2 === 0,
+    }));
+  }, []);
 
-  const filteredStudents = allStudents.filter(student => {
+  const grades = [...new Set(allStudentsData.map(s => s.grade))];
+  const sections = [...new Set(allStudentsData.map(s => s.section))];
+
+  const filteredStudents = allStudentsData.filter(student => {
     if (filterGrade && student.grade !== filterGrade) return false;
     if (filterSection && student.section !== filterSection) return false;
     return true;
   });
 
-  // ✅ Consistent columns: #, data, Status, Actions with EyeOutlined
   const columns = [
     {
       title: '#',
@@ -64,20 +74,16 @@ const SubscriptionStats = () => {
       key: 'email',
     },
     {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-      render: (text) => (
-        <span
-          className={`px-2 py-1 rounded-full text-xs font-medium ${
-            text === 'Active'
-              ? 'bg-green-100 text-green-800'
-              : 'bg-red-100 text-red-800'
-          }`}
-        >
-          {text}
-        </span>
-      ),
+      title: 'Paid',
+      dataIndex: 'paid',
+      key: 'paid',
+      width: 100,
+      render: (paid) =>
+        paid ? (
+          <CheckCircleFilled style={{ color: 'green', fontSize: 18 }} />
+        ) : (
+          <CloseCircleFilled style={{ color: 'red', fontSize: 18 }} />
+        ),
     },
     {
       title: 'Actions',
@@ -96,10 +102,10 @@ const SubscriptionStats = () => {
     },
   ];
 
-  const totalStudents = allStudents.length;
+  const totalStudents = allStudentsData.length;
   const totalSections = sections.length;
   const totalGrades = grades.length;
-  const activeStudents = allStudents.length;
+  const activeStudents = allStudentsData.length;
 
   return (
     <div className="p-6 space-y-6">
@@ -195,11 +201,19 @@ const SubscriptionStats = () => {
           </div>
         </div>
 
+        {/* ✅ Pagination always visible – 5 rows, next/back visible even with single page */}
         <Table
           columns={columns}
           dataSource={filteredStudents}
-          pagination={{ pageSize: 8, showSizeChanger: true }}
           rowKey="key"
+          pagination={{
+            pageSize: 5,
+            showSizeChanger: false,
+            showTotal: (total, range) =>
+              `${range[0]}-${range[1]} of ${total} students`,
+            position: ['bottomCenter'],
+            hideOnSinglePage: false,  // ← ensures next/back buttons always appear
+          }}
         />
       </Card>
 
@@ -210,7 +224,7 @@ const SubscriptionStats = () => {
         footer={null}
       >
         {selectedStudent && (
-          <Descriptions column={1} size="small">
+          <Descriptions column={1} size="small" bordered>
             <Descriptions.Item label="Full Name">
               {selectedStudent.fullName}
             </Descriptions.Item>
@@ -220,8 +234,12 @@ const SubscriptionStats = () => {
             <Descriptions.Item label="School">
               {selectedStudent.school}
             </Descriptions.Item>
-            <Descriptions.Item label="Status">
-              {selectedStudent.status}
+            <Descriptions.Item label="Payment Status">
+              {selectedStudent.paid ? (
+                <CheckCircleFilled style={{ color: 'green', fontSize: 18 }} />
+              ) : (
+                <CloseCircleFilled style={{ color: 'red', fontSize: 18 }} />
+              )}
             </Descriptions.Item>
             <Descriptions.Item label="Plan">Pro</Descriptions.Item>
             <Descriptions.Item label="Amount">$20</Descriptions.Item>

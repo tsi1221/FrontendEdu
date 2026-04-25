@@ -22,7 +22,6 @@ import GeneratedQuizzes from './pages/teacher/generatedQueze'; // adjust path as
 
 import { QuizProvider } from './pages/teacher/QuizContext'; // import the context provider
 import SubscriptionStats from './pages/admin/subscription';
-import AddSchool from './pages/admin/schoolStats';
 import SchoolStats from './pages/admin/schoolStats';
 import SystemHealth from './pages/admin/systemHealth';
 

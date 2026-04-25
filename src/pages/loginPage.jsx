@@ -3,6 +3,13 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import logo from '../../src/assets/logo.png';
 
+// Demo accounts
+const DEMO_ACCOUNTS = {
+  'student@demo.com': { password: 'demo123', role: 'student', redirect: '/dashbored' },
+  'teacher@demo.com': { password: 'demo123', role: 'teacher', redirect: '/teacher-dashbored' },
+  'admin@demo.com': { password: 'demo123', role: 'admin', redirect: '/subscription-stats' },
+};
+
 const LoginPage = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
@@ -12,30 +19,33 @@ const LoginPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (email && password) {
-      // Dummy authentication – replace with real API call
-      localStorage.setItem('userRole', 'student');
-      navigate('/dashbored');
-    } else {
-      setError('Please enter both email and password');
+
+    const account = DEMO_ACCOUNTS[email.toLowerCase()];
+
+    if (!account) {
+      setError('Invalid email or account type.');
+      return;
     }
+
+    if (password !== account.password) {
+      setError('Incorrect password.');
+      return;
+    }
+
+    // Store role and redirect
+    localStorage.setItem('userRole', account.role);
+    navigate(account.redirect);
   };
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-5">
       <div className="w-full max-w-sm border border-gray-200 bg-white p-6">
-        {/* Logo Section */}
         <div className="flex flex-col items-center mb-6">
-          <img 
-            src={logo} 
-            alt="EduTwin Logo" 
-            className="w-10 h-10 object-contain mb-3"
-          />
+          <img src={logo} alt="EduTwin Logo" className="w-10 h-10 object-contain mb-3" />
           <h1 className="text-xl font-bold text-gray-900">Welcome Back</h1>
           <p className="text-xs text-gray-500 mt-1">Sign in to continue learning</p>
         </div>
 
-        {/* Form */}
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
             <label className="block text-xs font-medium text-gray-700 mb-1">Email Address</label>
@@ -57,7 +67,7 @@ const LoginPage = () => {
             <div className="relative">
               <Lock className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
               <input
-                type={showPassword ? "text" : "password"}
+                type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
@@ -72,7 +82,6 @@ const LoginPage = () => {
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
-            {/* Forgot password link placed below the password field */}
             <div className="text-right mt-1">
               <a href="/forgot-password" className="text-xs text-[#0056D2] hover:underline">
                 Forgot password?
@@ -80,9 +89,7 @@ const LoginPage = () => {
             </div>
           </div>
 
-          {error && (
-            <p className="text-xs text-red-600">{error}</p>
-          )}
+          {error && <p className="text-xs text-red-600">{error}</p>}
 
           <button
             type="submit"
@@ -92,7 +99,6 @@ const LoginPage = () => {
           </button>
         </form>
 
-        {/* Sign up link */}
         <p className="text-center text-xs text-gray-500 mt-6">
           Don't have an account?{' '}
           <Link to="/signup" className="font-medium text-[#0056D2] hover:underline">
