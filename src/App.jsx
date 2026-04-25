@@ -24,6 +24,7 @@ import { QuizProvider } from './pages/teacher/QuizContext'; // import the contex
 import SubscriptionStats from './pages/admin/subscription';
 import AddSchool from './pages/admin/schoolStats';
 import SchoolStats from './pages/admin/schoolStats';
+import SystemHealth from './pages/admin/systemHealth';
 
 function App() {
   return (
@@ -147,6 +148,14 @@ function App() {
             element={
               <SidebarLayout>
                 <SchoolStats/>
+              </SidebarLayout>
+            }
+          />
+          <Route
+            path="/system-health"
+            element={
+              <SidebarLayout>
+                <SystemHealth/>
               </SidebarLayout>
             }
           />
