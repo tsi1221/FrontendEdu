@@ -1,8 +1,10 @@
-import { useState, useMemo } from 'react';
+import { useEffect, useMemo, useState } from "react";
 import {
+  Alert,
   Card,
   Row,
   Col,
+  Spin,
   Table,
   Select,
   Statistic,
@@ -10,7 +12,7 @@ import {
   Modal,
   Descriptions,
   Button,
-} from 'antd';
+} from "antd";
 import {
   UserOutlined,
   TeamOutlined,
@@ -19,8 +21,8 @@ import {
   EyeOutlined,
   CheckCircleFilled,
   CloseCircleFilled,
-} from '@ant-design/icons';
-import { allStudents } from './mockStudents';
+} from "@ant-design/icons";
+import { fetchAdminSubscriptionStats } from "../../services/api";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -28,23 +30,70 @@ const { Option } = Select;
 const SubscriptionStats = () => {
   const [filterGrade, setFilterGrade] = useState(null);
   const [filterSection, setFilterSection] = useState(null);
+  const [students, setStudents] = useState([]);
+  const [summary, setSummary] = useState({
+    totalStudents: 0,
+    totalSections: 0,
+    totalGrades: 0,
+    activeStudents: 0,
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Mock 'paid' field if not present (replace with real data)
-  const allStudentsData = useMemo(() => {
-    return allStudents.map((student, index) => ({
-      ...student,
-      paid: Object.prototype.hasOwnProperty.call(student, 'paid')
-        ? student.paid
-        : index % 2 === 0,
-    }));
+  useEffect(() => {
+    let active = true;
+
+    const loadSubscriptionStats = async () => {
+      try {
+        setLoading(true);
+        setError("");
+        const response = await fetchAdminSubscriptionStats();
+        if (!active) return;
+
+        const studentsData = Array.isArray(response?.data?.students)
+          ? response.data.students
+          : [];
+        const summaryData = response?.data?.summary || {};
+
+        setStudents(studentsData);
+        setSummary({
+          totalStudents: Number(summaryData.totalStudents || 0),
+          totalSections: Number(summaryData.totalSections || 0),
+          totalGrades: Number(summaryData.totalGrades || 0),
+          activeStudents: Number(summaryData.activeStudents || 0),
+        });
+      } catch (fetchError) {
+        if (!active) return;
+        setError(fetchError.message || "Unable to load subscription stats.");
+        setStudents([]);
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+
+    loadSubscriptionStats();
+
+    return () => {
+      active = false;
+    };
   }, []);
 
-  const grades = [...new Set(allStudentsData.map(s => s.grade))];
-  const sections = [...new Set(allStudentsData.map(s => s.section))];
+  const grades = [
+    ...new Set(
+      students.map((s) => s.grade).filter((g) => g !== null && g !== undefined),
+    ),
+  ];
+  const sections = [
+    ...new Set(
+      students
+        .map((s) => s.section)
+        .filter((sec) => typeof sec === "string" && sec.trim()),
+    ),
+  ];
 
-  const filteredStudents = allStudentsData.filter(student => {
+  const filteredStudents = students.filter((student) => {
     if (filterGrade && student.grade !== filterGrade) return false;
     if (filterSection && student.section !== filterSection) return false;
     return true;
@@ -52,42 +101,42 @@ const SubscriptionStats = () => {
 
   const columns = [
     {
-      title: '#',
-      key: 'index',
+      title: "#",
+      key: "index",
       width: 60,
       render: (_, __, index) => index + 1,
     },
     {
-      title: 'Full Name',
-      dataIndex: 'fullName',
-      key: 'fullName',
+      title: "Full Name",
+      dataIndex: "fullName",
+      key: "fullName",
       sorter: (a, b) => a.fullName.localeCompare(b.fullName),
     },
     {
-      title: 'School',
-      dataIndex: 'school',
-      key: 'school',
+      title: "School",
+      dataIndex: "school",
+      key: "school",
     },
     {
-      title: 'Email Address',
-      dataIndex: 'email',
-      key: 'email',
+      title: "Email Address",
+      dataIndex: "email",
+      key: "email",
     },
     {
-      title: 'Paid',
-      dataIndex: 'paid',
-      key: 'paid',
+      title: "Paid",
+      dataIndex: "paid",
+      key: "paid",
       width: 100,
       render: (paid) =>
         paid ? (
-          <CheckCircleFilled style={{ color: 'green', fontSize: 18 }} />
+          <CheckCircleFilled style={{ color: "green", fontSize: 18 }} />
         ) : (
-          <CloseCircleFilled style={{ color: 'red', fontSize: 18 }} />
+          <CloseCircleFilled style={{ color: "red", fontSize: 18 }} />
         ),
     },
     {
-      title: 'Actions',
-      key: 'actions',
+      title: "Actions",
+      key: "actions",
       width: 80,
       render: (_, record) => (
         <Button
@@ -102,10 +151,10 @@ const SubscriptionStats = () => {
     },
   ];
 
-  const totalStudents = allStudentsData.length;
-  const totalSections = sections.length;
-  const totalGrades = grades.length;
-  const activeStudents = allStudentsData.length;
+  const totalStudents = summary.totalStudents;
+  const totalSections = summary.totalSections;
+  const totalGrades = summary.totalGrades;
+  const activeStudents = summary.activeStudents;
 
   return (
     <div className="p-6 space-y-6">
@@ -125,7 +174,7 @@ const SubscriptionStats = () => {
               title="Total Students"
               value={totalStudents}
               prefix={<TeamOutlined className="text-indigo-500 mr-2" />}
-              valueStyle={{ color: '#1f2937' }}
+              valueStyle={{ color: "#1f2937" }}
             />
           </Card>
         </Col>
@@ -136,7 +185,7 @@ const SubscriptionStats = () => {
               title="Total Sections"
               value={totalSections}
               prefix={<BookOutlined className="text-indigo-500 mr-2" />}
-              valueStyle={{ color: '#1f2937' }}
+              valueStyle={{ color: "#1f2937" }}
             />
           </Card>
         </Col>
@@ -147,7 +196,7 @@ const SubscriptionStats = () => {
               title="Total Grades"
               value={totalGrades}
               prefix={<ReadOutlined className="text-indigo-500 mr-2" />}
-              valueStyle={{ color: '#1f2937' }}
+              valueStyle={{ color: "#1f2937" }}
             />
           </Card>
         </Col>
@@ -158,7 +207,7 @@ const SubscriptionStats = () => {
               title="Active Students"
               value={activeStudents}
               prefix={<UserOutlined className="text-indigo-500 mr-2" />}
-              valueStyle={{ color: '#1f2937' }}
+              valueStyle={{ color: "#1f2937" }}
             />
           </Card>
         </Col>
@@ -178,7 +227,7 @@ const SubscriptionStats = () => {
               value={filterGrade}
               onChange={setFilterGrade}
             >
-              {grades.map(grade => (
+              {grades.map((grade) => (
                 <Option key={grade} value={grade}>
                   Grade {grade}
                 </Option>
@@ -192,7 +241,7 @@ const SubscriptionStats = () => {
               value={filterSection}
               onChange={setFilterSection}
             >
-              {sections.map(section => (
+              {sections.map((section) => (
                 <Option key={section} value={section}>
                   Section {section}
                 </Option>
@@ -201,20 +250,29 @@ const SubscriptionStats = () => {
           </div>
         </div>
 
-        {/* ✅ Pagination always visible – 5 rows, next/back visible even with single page */}
-        <Table
-          columns={columns}
-          dataSource={filteredStudents}
-          rowKey="key"
-          pagination={{
-            pageSize: 5,
-            showSizeChanger: false,
-            showTotal: (total, range) =>
-              `${range[0]}-${range[1]} of ${total} students`,
-            position: ['bottomCenter'],
-            hideOnSinglePage: false,  // ← ensures next/back buttons always appear
-          }}
-        />
+        {error ? (
+          <Alert type="error" showIcon className="mb-4" message={error} />
+        ) : null}
+
+        {loading ? (
+          <div className="py-10 flex justify-center">
+            <Spin />
+          </div>
+        ) : (
+          <Table
+            columns={columns}
+            dataSource={filteredStudents}
+            rowKey={(record) => record.key || record.id}
+            pagination={{
+              pageSize: 5,
+              showSizeChanger: false,
+              showTotal: (total, range) =>
+                `${range[0]}-${range[1]} of ${total} students`,
+              position: ["bottomCenter"],
+              hideOnSinglePage: false,
+            }}
+          />
+        )}
       </Card>
 
       <Modal
@@ -236,14 +294,24 @@ const SubscriptionStats = () => {
             </Descriptions.Item>
             <Descriptions.Item label="Payment Status">
               {selectedStudent.paid ? (
-                <CheckCircleFilled style={{ color: 'green', fontSize: 18 }} />
+                <CheckCircleFilled style={{ color: "green", fontSize: 18 }} />
               ) : (
-                <CloseCircleFilled style={{ color: 'red', fontSize: 18 }} />
+                <CloseCircleFilled style={{ color: "red", fontSize: 18 }} />
               )}
             </Descriptions.Item>
-            <Descriptions.Item label="Plan">Pro</Descriptions.Item>
-            <Descriptions.Item label="Amount">$20</Descriptions.Item>
-            <Descriptions.Item label="Transaction ID">TXN-123456</Descriptions.Item>
+            <Descriptions.Item label="Plan">
+              {selectedStudent.plan || "-"}
+            </Descriptions.Item>
+            <Descriptions.Item label="Subscription Status">
+              {selectedStudent.subscriptionStatus || "-"}
+            </Descriptions.Item>
+            <Descriptions.Item label="Period End">
+              {selectedStudent.subscriptionPeriodEnd
+                ? new Date(
+                    selectedStudent.subscriptionPeriodEnd,
+                  ).toLocaleString()
+                : "-"}
+            </Descriptions.Item>
           </Descriptions>
         )}
       </Modal>

@@ -7,7 +7,7 @@ import { FloatingFormulas } from '../ui/FloatingFormulas';
 
 const testimonials = [
   {
-    name: 'Sarah Johnson',
+    name: 'Hanna Bekele',
     roleEn: 'Grade 12 Student · Top Performer',
     roleOm: 'Barattuu Kutaa 12ffaa · Qabxii Olaanaa',
     roleAm: 'የ12ኛ ክፍል ተማሪ · ከፍተኛ ውጤት ያስመዘገበች',
@@ -17,11 +17,11 @@ const testimonials = [
       'EduTwin kutaa 12ffaa qabxii fulaa (distinction) akkan xumuru na gargaare!',
     quoteAm:
       'EduTwin የ12ኛ ክፍልን ትምህርቴን በከፍተኛ ውጤት እንድጨርስ ረድቶኛል!',
-    avatar: 'https://randomuser.me/api/portraits/women/68.jpg',
+    avatar: '/team/tsehaynesh.jpg',
     rating: 5,
   },
   {
-    name: 'Michael Chen',
+    name: 'Biruk Alemayehu',
     roleEn: 'Grade 11 Student',
     roleOm: 'Barataa Kutaa 11ffaa',
     roleAm: 'የ11ኛ ክፍል ተማሪ',
@@ -31,25 +31,25 @@ const testimonials = [
       'Seemisteera tokko keessatti herregaan C irraa gara A+ tti ol guddadhe.',
     quoteAm:
       'በአንድ ሴሚስተር ውስጥ ከC ወደ A+ ተሻሻልኩ።',
-    avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
+    avatar: '/team/eyob.jpg',
     rating: 3,
   },
   {
-    name: 'Dr. Emily Rodriguez',
-    roleEn: 'Professor & Curriculum Advisor',
-    roleOm: 'Piroofeesara fi Gorsaa',
-    roleAm: 'ፕሮፌሰር እና አማካሪ',
+    name: 'Rahel Abebe',
+    roleEn: 'Grade 12 Student',
+    roleOm: 'Barataa Kutaa 12ffaa',
+    roleAm: 'የ12ኛ ክፍል ተማሪ',
     quoteEn:
-      'Students are more engaged than ever thanks to interactive learning.',
+      'Interactive learning made biology and chemistry much easier for me this year.',
     quoteOm:
-      'Barattoonni barnootatti caalaa hirmaachaa jiru.',
+      'Barnoonni interaaktiivii baayoloojii fi keemistirii naaf salphiseera.',
     quoteAm:
-      'ተማሪዎች በትምህርታቸው በጣም ንቁ ሆነዋል።',
-    avatar: 'https://randomuser.me/api/portraits/women/45.jpg',
+      'ኢንተራክቲቭ ትምህርት ባዮሎጂና ኬሚስትሪን ለእኔ በጣም ቀላል አድርጎታል።',
+    avatar: '/team/yeabsira.jpg',
     rating: 4,
   },
   {
-    name: 'David Tesfaye',
+    name: 'Mekdes Tadesse',
     roleEn: 'Grade 10 Student',
     roleOm: 'Barataa Kutaa 10ffaa',
     roleAm: 'የ10ኛ ክፍል ተማሪ',
@@ -59,13 +59,13 @@ const testimonials = [
       'Barnoonni taphaan kaka’umsaa naaf ta’e.',
     quoteAm:
       'በጨዋታ መልክ ትምህርት ተነሳሽነቴን ጠብቆታል።',
-    avatar: 'https://randomuser.me/api/portraits/men/22.jpg',
+    avatar: 'https://ui-avatars.com/api/?name=David+Tesfaye&background=193CB8&color=fff',
     rating: 3.5,
   },
   {
-    name: 'Amina Yusuf',
+    name: 'Yosef Hailu',
     roleEn: 'Grade 9 Student',
-    roleOm: 'Barattuu Kutaa 9ffaa',
+    roleOm: 'Barataa Kutaa 9ffaa',
     roleAm: 'የ9ኛ ክፍል ተማሪ',
     quoteEn:
       'Now I understand science formulas easily thanks to interactive lessons.',
@@ -73,11 +73,11 @@ const testimonials = [
       'Foormulaa saayinsii salphaatti nan hubadha.',
     quoteAm:
       'የሳይንስ ቀመሮችን ቀላሉ ተማርኩ።',
-    avatar: 'https://randomuser.me/api/portraits/women/29.jpg',
+    avatar: '/team/natnael.jpg',
     rating: 4.5,
   },
   {
-    name: 'Samuel Bekele',
+    name: 'Saron Gemechu',
     roleEn: 'Grade 12 Graduate · Valedictorian',
     roleOm: 'Eebbifamaa Kutaa 12ffaa',
     roleAm: 'የ12ኛ ክፍል ተመራቂ',
@@ -87,10 +87,18 @@ const testimonials = [
       'EduTwin sadarkaa olaanaa na ga’e.',
     quoteAm:
       'EduTwin ከፍተኛ ደረጃ እንድይዝ ረድቶኛል።',
-    avatar: 'https://randomuser.me/api/portraits/men/53.jpg',
+    avatar: '/team/elias.jpg',
     rating: 5,
   },
 ];
+
+const getInitials = (name = '') =>
+  String(name)
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() || '')
+    .join('');
 
 const Testimonials = memo(() => {
   const languageContext = useContext(LanguageContext);
@@ -151,15 +159,9 @@ const Testimonials = memo(() => {
               <div className="relative z-10">
                 {/* USER */}
                 <div className="flex items-center gap-4 mb-6">
-                  <img
-                    src={item.avatar}
-                    alt={item.name}
-                    className="w-14 h-14 rounded-full object-cover border-2 border-[#193CB8]/20 group-hover:border-[#193CB8]/50 transition"
-                    onError={(e) => {
-                      (e.target).src =
-                        `https://ui-avatars.com/api/?name=${item.name}&background=193CB8&color=fff`;
-                    }}
-                  />
+                  <div className="w-14 h-14 rounded-full border-2 border-[#193CB8]/20 group-hover:border-[#193CB8]/50 transition bg-[#193CB8] text-white flex items-center justify-center font-bold text-sm tracking-wide">
+                    {getInitials(item.name)}
+                  </div>
                   <div>
                     <h4 className="font-bold text-gray-900">{item.name}</h4>
                     <p className="text-xs text-[#193CB8]/70 uppercase tracking-wider">

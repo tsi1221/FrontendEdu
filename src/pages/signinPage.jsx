@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import {
   Building2,
@@ -11,7 +11,11 @@ import {
   EyeOff,
 } from "lucide-react";
 import logo from "../../src/assets/logo.png";
-import { registerStudent, saveStoredAuth } from "../services/api";
+import {
+  fetchPublicSchools,
+  registerStudent,
+  saveStoredAuth,
+} from "../services/api";
 
 const SignupPage = () => {
   const navigate = useNavigate();
@@ -28,6 +32,32 @@ const SignupPage = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [schools, setSchools] = useState([]);
+  const [schoolsLoading, setSchoolsLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+
+    const loadSchools = async () => {
+      try {
+        setSchoolsLoading(true);
+        const response = await fetchPublicSchools();
+        if (!active) return;
+        setSchools(Array.isArray(response?.data) ? response.data : []);
+      } catch {
+        if (!active) return;
+        setSchools([]);
+      } finally {
+        if (active) setSchoolsLoading(false);
+      }
+    };
+
+    void loadSchools();
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -73,6 +103,7 @@ const SignupPage = () => {
         full_name: formData.fullName,
         language: "en",
         grade_level: Number(formData.grade),
+        school_id: formData.school,
         section: formData.section,
       });
 
@@ -153,12 +184,17 @@ const SignupPage = () => {
                 name="school"
                 value={formData.school}
                 onChange={handleChange}
+                disabled={schoolsLoading}
                 className="w-full pl-8 pr-3 py-2 bg-white border border-gray-300 text-gray-800 text-sm appearance-none focus:outline-none focus:border-[#0056D2] focus:ring-1 focus:ring-[#0056D2]"
               >
-                <option value="">Choose your school</option>
-                <option value="north">North High School</option>
-                <option value="global">Global Academy</option>
-                <option value="science">Science Institute</option>
+                <option value="">
+                  {schoolsLoading ? "Loading schools..." : "Choose your school"}
+                </option>
+                {schools.map((school) => (
+                  <option key={school._id} value={school._id}>
+                    {school.name}
+                  </option>
+                ))}
               </select>
             </div>
             {errors.school && (

@@ -49,7 +49,7 @@ export const clearStoredAuth = () => {
 };
 
 export const requestJson = async (path, options = {}) => {
-  const { method = "GET", body, headers = {}, auth = true } = options;
+  const { method = "GET", body, headers = {}, auth = true, cache } = options;
 
   const requestHeaders = { ...headers };
   let requestBody = body;
@@ -70,6 +70,7 @@ export const requestJson = async (path, options = {}) => {
     method,
     headers: requestHeaders,
     body: requestBody,
+    ...(cache ? { cache } : {}),
   });
 
   const contentType = response.headers.get("content-type") || "";
@@ -137,7 +138,8 @@ export const fetchStudentGamification = (studentId) =>
 export const fetchStudentAnalytics = (studentId) =>
   requestJson(`/analytics/student/${studentId}`);
 
-export const fetchTeacherDashboard = () => requestJson("/teachers/me/dashboard");
+export const fetchTeacherDashboard = () =>
+  requestJson("/teachers/me/dashboard");
 
 export const createQuiz = (payload) =>
   requestJson("/quizzes", {
@@ -147,7 +149,22 @@ export const createQuiz = (payload) =>
 
 export const fetchMyCreatedQuizzes = () => requestJson("/quizzes/mine");
 
-export const fetchAdminGeneratedQuizzes = () => requestJson("/quizzes/admin/generated");
+export const fetchAdminGeneratedQuizzes = () =>
+  requestJson("/quizzes/admin/generated");
+
+export const fetchAdminSubscriptionStats = () =>
+  requestJson("/users/subscription-stats");
+
+export const fetchSchools = () => requestJson("/schools");
+
+export const fetchPublicSchools = () =>
+  requestJson("/schools/public", { auth: false });
+
+export const createSchool = (payload) =>
+  requestJson("/schools", {
+    method: "POST",
+    body: payload,
+  });
 
 export const approveQuiz = (quizId) =>
   requestJson(`/quizzes/${quizId}/approve`, {
@@ -184,18 +201,21 @@ export const fetchVirtualLabResources = ({
   subject,
   grade,
   interactionType = "CANVAS",
+  refresh = false,
 } = {}) => {
   const query = new URLSearchParams();
 
   if (subject) query.set("subject", subject);
   if (grade) query.set("grade", String(grade));
   if (interactionType) query.set("interaction_type", interactionType);
+  if (refresh) query.set("refresh", "1");
 
   const queryString = query.toString();
   return requestJson(
     `/virtual-lab-resources${queryString ? `?${queryString}` : ""}`,
     {
       auth: false,
+      cache: "no-store",
     },
   );
 };

@@ -7,7 +7,7 @@ import {
   ExternalLink,
   LoaderCircle,
 } from "lucide-react";
-import { fetchVirtualLabResources } from "../../services/api";
+import { fetchCurrentUser, fetchVirtualLabResources } from "../../services/api";
 import { LanguageContext } from "../../context/LanguageContext";
 
 const LAB_TEXT = {
@@ -30,6 +30,7 @@ const LAB_TEXT = {
     missingUrl: "Resource URL is missing for this model.",
     openInNewTab: "Open in New Tab",
     backToList: "Back to list",
+    classMissing: "Student class level is missing from profile.",
     loadError: "Unable to load virtual lab resources right now.",
   },
   om: {
@@ -51,12 +52,12 @@ const LAB_TEXT = {
     missingUrl: "Moodeela kanaaf URL qabeenyaa hin jiru.",
     openInNewTab: "Tab haaraa keessatti bani",
     backToList: "Gara tarree deebi’i",
+    classMissing: "Kutaan barataa profaayil keessa hin jiru.",
     loadError: "Qabeenya laabii viirtuwaalii fe'uun hin danda’amne.",
   },
 };
 
 const SUBJECTS = ["Mathematics", "Biology", "Chemistry", "Physics"];
-const SELECTED_GRADE = 9;
 
 const LabStat = ({ label, value, Icon }) => (
   <div className="border border-gray-200 bg-white p-4 flex flex-col items-center justify-center text-center">
@@ -76,7 +77,9 @@ const Lab = () => {
   const [selectedResource, setSelectedResource] = useState(null);
   const [resources, setResources] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingProfile, setLoadingProfile] = useState(true);
   const [error, setError] = useState("");
+  const [studentGradeLevel, setStudentGradeLevel] = useState(null);
 
   const backendSubject = useMemo(() => {
     const normalized = selectedSubject.toLowerCase();
@@ -86,6 +89,49 @@ const Lab = () => {
   useEffect(() => {
     let active = true;
 
+    const loadStudentGrade = async () => {
+      setLoadingProfile(true);
+
+      try {
+        const profileResponse = await fetchCurrentUser();
+        if (!active) return;
+
+        const rawGrade = profileResponse?.data?.profile?.grade_level;
+        const parsedGrade = Number(rawGrade);
+
+        if (!rawGrade || Number.isNaN(parsedGrade)) {
+          throw new Error(text.classMissing);
+        }
+
+        setStudentGradeLevel(parsedGrade);
+      } catch (fetchError) {
+        if (!active) return;
+
+        setStudentGradeLevel(null);
+        setResources([]);
+        setError(fetchError.message || text.loadError);
+      } finally {
+        if (active) setLoadingProfile(false);
+      }
+    };
+
+    loadStudentGrade();
+
+    return () => {
+      active = false;
+    };
+  }, [text.classMissing, text.loadError]);
+
+  useEffect(() => {
+    let active = true;
+
+    if (studentGradeLevel === null) {
+      setLoading(false);
+      return () => {
+        active = false;
+      };
+    }
+
     const loadResources = async () => {
       setLoading(true);
       setError("");
@@ -93,8 +139,9 @@ const Lab = () => {
       try {
         const response = await fetchVirtualLabResources({
           subject: backendSubject,
-          grade: SELECTED_GRADE,
+          grade: studentGradeLevel,
           interactionType: "CANVAS",
+          refresh: true,
         });
 
         if (!active) return;
@@ -121,7 +168,7 @@ const Lab = () => {
     return () => {
       active = false;
     };
-  }, [backendSubject, text.loadError]);
+  }, [backendSubject, studentGradeLevel, text.loadError]);
 
   useEffect(() => {
     setSelectedResource(null);
@@ -174,7 +221,11 @@ const Lab = () => {
                   />
                   <LabStat
                     label={text.grade}
-                    value={`${text.grade} ${SELECTED_GRADE}`}
+                    value={
+                      studentGradeLevel !== null
+                        ? `${text.grade} ${studentGradeLevel}`
+                        : "--"
+                    }
                     Icon={FlaskConical}
                   />
                 </div>
@@ -206,7 +257,7 @@ const Lab = () => {
               </div>
 
               <div className="p-5 space-y-4">
-                {loading ? (
+                {loadingProfile || loading ? (
                   <div className="border border-dashed border-gray-300 py-10 flex flex-col items-center justify-center text-center">
                     <LoaderCircle
                       size={18}

@@ -180,7 +180,7 @@ const Chat = () => {
   };
 
   return (
-    <div className="flex h-full w-full bg-slate-50  text-slate-900 overflow-hidden">
+    <div className="flex h-full min-h-0 w-full bg-slate-50  text-slate-900 overflow-hidden">
       {/* Mobile overlay when sidebar is open on small screens */}
       {sidebarOpen && (
         <div
@@ -190,7 +190,7 @@ const Chat = () => {
       )}
 
       {/* Main Chat Area (Left) */}
-      <main className="flex-1 flex flex-col min-w-0 relative">
+      <main className="flex-1 flex flex-col min-w-0 min-h-0 relative">
         {/* Mobile header with toggle */}
         <div className="md:hidden flex items-center justify-between p-4 border-b border-slate-200 bg-white">
           <button
@@ -220,10 +220,10 @@ const Chat = () => {
         </button>
 
         {/* Inset chat window */}
-        <div className="flex-1 overflow-hidden p-0 md:p-4 lg:p-6">
-          <div className="h-full w-full bg-white md:rounded-xs border-0 md:border border-slate-200 md:shadow-sm flex flex-col overflow-hidden">
+        <div className="flex-1 min-h-0 overflow-hidden p-0 md:p-4 lg:p-6">
+          <div className="h-full w-full bg-white md:rounded-xs border-0 md:border border-slate-200 md:shadow-sm flex flex-col min-h-0 overflow-hidden">
             {/* Messages area */}
-            <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 md:space-y-8">
+            <div className="flex-1 min-h-0 overflow-y-auto p-4 md:p-6 space-y-6 md:space-y-8">
               {loadingHistory && (
                 <div className="max-w-3xl mx-auto text-xs text-slate-400">
                   {text.loadingConversation}
@@ -306,11 +306,11 @@ const Chat = () => {
       <aside
         className={`
         ${sidebarOpen ? "w-72" : "w-0"} 
-        transition-all duration-300 ease-in-out flex flex-col bg-slate-50 overflow-hidden
+        transition-all duration-300 ease-in-out flex flex-col bg-slate-50 min-h-0 overflow-hidden
         absolute md:relative z-20 h-full right-0 border-l border-slate-200
       `}
       >
-        <div className="p-4 flex flex-col h-full min-w-72">
+        <div className="p-4 flex flex-col h-full min-h-0 min-w-72">
           {/* Logo + Title */}
           <div className="flex items-center gap-2 mb-6 px-2">
             <span className="font-bold text-slate-800 text-base">
@@ -328,7 +328,7 @@ const Chat = () => {
           </button>
 
           {/* History List */}
-          <div className="flex-1 overflow-y-auto space-y-2">
+          <div className="flex-1 min-h-0 overflow-y-auto space-y-2">
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-2 mb-2">
               {text.recent}
             </p>
